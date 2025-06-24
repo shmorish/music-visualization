@@ -62,9 +62,21 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
     const waveFrequency = 1 + intensity * 2; // Smooth frequency response
     const time = state.clock.elapsedTime;
     
-    // Debug log
+    // Enhanced debug log
     if (Math.floor(time * 10) % 30 === 0) { // Log every 3 seconds
-      console.log('AudioReactiveSphere3D - intensity:', intensity, 'waveStrength:', waveStrength);
+      const hasAudioData = audioData && audioData.length > 0;
+      const avgAudioLevel = hasAudioData ? 
+        Array.from(audioData).reduce((a, b) => a + b, 0) / audioData.length : 0;
+      
+      console.log('AudioReactiveSphere3D Debug:', {
+        intensity,
+        waveStrength,
+        hasAudioData,
+        audioDataLength: audioData?.length || 0,
+        avgAudioLevel,
+        frequencyRange,
+        baseScale: 0.5 + intensity * 0.5
+      });
     }
 
     // Apply deformation to each vertex
