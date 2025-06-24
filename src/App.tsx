@@ -172,6 +172,25 @@ const App: React.FC = () => {
 
   const isLoading = playerStatus === 'loading';
   const isPlaying = playerStatus === 'playing';
+  
+  // Debug: Log visualization data periodically
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('App.tsx - Visualization Status:', {
+        isPlaying,
+        playerStatus,
+        audioReady,
+        audioSource,
+        connectionMethod,
+        hasVisualizationData: !!visualizationData,
+        visualizationDataType: visualizationData ? 'VisualizationData' : 'null',
+        audioError,
+        playerError
+      });
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, [isPlaying, playerStatus, audioReady, audioSource, connectionMethod, visualizationData, audioError, playerError]);
 
   return (
     <ThemeProvider theme={currentTheme}>

@@ -187,11 +187,13 @@ const BeatVisualization: React.FC<BeatVisualizationProps> = ({
     const average = sum / count;
     
     // If audio data is essentially silent (very low average), return very low intensity
-    if (average < 5) {
-      return 0.1;
+    if (average < 3) {
+      return 0.05;
     }
     
-    const intensity = Math.max(0.1, Math.min(2.5, average / 100));
+    // EXTREME amplification for dramatic effect
+    const rawIntensity = average / 50; // Increased sensitivity (was /100)
+    const intensity = Math.max(0.05, Math.min(5.0, Math.pow(rawIntensity, 0.7) * 3)); // Power curve + 3x amp
     
     // Debug: Log intensity for first sphere occasionally
     if (sphereId === 1 && Math.random() < 0.01) {

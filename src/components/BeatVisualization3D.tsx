@@ -36,11 +36,9 @@ const BeatVisualization3D: React.FC<BeatVisualization3DProps> = ({
     console.log('BeatVisualization3D - isActive:', isActive, 'audioData:', audioData?.length);
     
     if (!audioData || !isActive) {
-      // Demo mode with sine wave
-      const time = Date.now() * 0.001;
-      const demoIntensity = 0.3 + 0.7 * Math.abs(Math.sin(time));
-      console.log('Demo mode intensity:', demoIntensity);
-      return demoIntensity;
+      // Return very low intensity when no audio data
+      console.log('No audio data - returning low intensity');
+      return 0.1;
     }
 
     // Calculate intensity based on different frequency ranges for more dynamic effect
@@ -52,15 +50,23 @@ const BeatVisualization3D: React.FC<BeatVisualization3DProps> = ({
     const midAvg = midFreq.reduce((sum, val) => sum + val, 0) / midFreq.length;
     const highAvg = highFreq.reduce((sum, val) => sum + val, 0) / highFreq.length;
 
-    // Weight bass frequencies heavily for EXTREME dramatic effect
-    const weightedIntensity = (lowAvg * 4 + midAvg * 2.5 + highAvg * 1.5) / (8 * 255);
-    const finalIntensity = Math.min(weightedIntensity, 1);
+    // Check if audio is essentially silent
+    const overallAvg = (lowAvg + midAvg + highAvg) / 3;
+    if (overallAvg < 3) {
+      console.log('Silent audio detected - returning low intensity');
+      return 0.05;
+    }
     
-    console.log('Audio intensity:', finalIntensity, 'from', audioData.length, 'samples');
-    console.log('Frequency averages - Low:', lowAvg.toFixed(2), 'Mid:', midAvg.toFixed(2), 'High:', highAvg.toFixed(2));
+    // EXTREME weight for dramatic effect - bass gets huge emphasis
+    const weightedIntensity = (lowAvg * 8 + midAvg * 5 + highAvg * 3) / (16 * 255);
+    const rawIntensity = Math.min(weightedIntensity, 1);
     
-    // EXTREME amplification for violent movement
-    return Math.max(0.6, finalIntensity * 5);
+    console.log('Audio intensity:', rawIntensity.toFixed(3), 'from', audioData.length, 'samples');
+    console.log('Frequency averages - Low:', lowAvg.toFixed(1), 'Mid:', midAvg.toFixed(1), 'High:', highAvg.toFixed(1));
+    
+    // MASSIVE amplification for extreme visual effect
+    const amplified = Math.pow(rawIntensity, 0.6) * 8; // Power curve + 8x amplification
+    return Math.max(0.05, Math.min(amplified, 4.0)); // Range: 0.05 to 4.0 (huge range!)
   };
 
   return (
@@ -95,6 +101,7 @@ const BeatVisualization3D: React.FC<BeatVisualization3DProps> = ({
             baseColor={sphereColor}
             size={sphere.size}
             frequencyRange={sphere.frequencyRange}
+            audioData={audioData}
           />
           
           {/* Controls for user interaction */}
@@ -105,7 +112,7 @@ const BeatVisualization3D: React.FC<BeatVisualization3DProps> = ({
             minDistance={3}
             maxDistance={50}
             autoRotate={isActive}
-            autoRotateSpeed={2 + (getIntensity() * 8)} // CRAZY camera rotation speed
+            autoRotateSpeed={1 + (getIntensity() * 3)} // Moderate camera rotation speed
             enableDamping={true}
             dampingFactor={0.05}
           />

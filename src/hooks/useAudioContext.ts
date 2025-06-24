@@ -153,9 +153,9 @@ export const useAudioContext = () => {
       const gainNode = audioContext.createGain();
       gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
       
-      // Create oscillators for different frequency ranges
-      const oscillators = [];
-      const frequencies = [60, 120, 240, 480, 960, 1920]; // Bass to treble
+      // Create oscillators for different frequency ranges with better variation
+      const oscillators: Array<{ osc: OscillatorNode; gain: GainNode; baseFreq: number }> = [];
+      const frequencies = [60, 120, 240, 480, 960, 1920, 3840]; // Bass to treble
       
       for (const freq of frequencies) {
         const osc = audioContext.createOscillator();
@@ -163,7 +163,7 @@ export const useAudioContext = () => {
         
         osc.frequency.setValueAtTime(freq, audioContext.currentTime);
         osc.type = 'sine';
-        oscGain.gain.setValueAtTime(0.02, audioContext.currentTime);
+        oscGain.gain.setValueAtTime(0.01, audioContext.currentTime);
         
         osc.connect(oscGain);
         oscGain.connect(analyserNode);
@@ -172,7 +172,7 @@ export const useAudioContext = () => {
         oscillators.push({ osc, gain: oscGain, baseFreq: freq });
       }
       
-      // Set up periodic updates based on YouTube player state
+      // Set up more dynamic updates based on YouTube player state
       const updateInterval = setInterval(() => {
         try {
           const currentTime = player.getCurrentTime();
@@ -180,10 +180,16 @@ export const useAudioContext = () => {
           const state = player.getPlayerState();
           
           if (state === 1) { // Playing
-            // Create pseudo-audio data based on time and volume
+            // Create more dynamic pseudo-audio data
             oscillators.forEach(({ gain, baseFreq }, index) => {
-              const intensity = Math.sin(currentTime * (index + 1) * 0.5) * volume * 0.1;
-              gain.gain.setValueAtTime(Math.abs(intensity), audioContext.currentTime);
+              // More complex wave patterns for better visualization
+              const timeVar = currentTime * (0.5 + index * 0.3);
+              const intensity1 = Math.sin(timeVar) * Math.cos(timeVar * 1.3);
+              const intensity2 = Math.sin(timeVar * 2.1) * Math.cos(timeVar * 0.7);
+              const combinedIntensity = (intensity1 + intensity2 * 0.5) / 1.5;
+              
+              const finalIntensity = Math.abs(combinedIntensity) * volume * (0.1 + index * 0.05);
+              gain.gain.setValueAtTime(finalIntensity, audioContext.currentTime);
             });
           } else {
             // Mute when not playing
@@ -194,7 +200,7 @@ export const useAudioContext = () => {
         } catch (err) {
           console.warn('Player API update failed:', err);
         }
-      }, 50); // 20 FPS updates
+      }, 33); // 30 FPS updates for smoother animation
       
       // Store cleanup function
       const cleanup = () => {
@@ -384,7 +390,10 @@ export const useAudioContext = () => {
 
   const getVisualizationData = useCallback((): VisualizationData | null => {
     const { analyserNode } = audioContextData;
-    if (!analyserNode) return null;
+    if (!analyserNode) {
+      console.warn('getVisualizationData: No analyser node available');
+      return null;
+    }
 
     const bufferLength = analyserNode.frequencyBinCount;
     const frequencyData = new Uint8Array(bufferLength);
@@ -392,13 +401,30 @@ export const useAudioContext = () => {
     
     analyserNode.getByteFrequencyData(frequencyData);
     analyserNode.getByteTimeDomainData(timeData);
+    
+    // Debug: Check if we're getting actual audio data
+    const avgFreq = Array.from(frequencyData).reduce((a, b) => a + b, 0) / frequencyData.length;
+    const avgTime = Array.from(timeData).reduce((a, b) => a + b, 0) / timeData.length;
+    
+    // Log occasionally
+    if (Math.random() < 0.01) {
+      console.log('getVisualizationData:', {
+        bufferLength,
+        avgFrequency: avgFreq.toFixed(2),
+        avgTime: avgTime.toFixed(2),
+        connectionMethod,
+        currentSource,
+        maxFreq: Math.max(...frequencyData),
+        minFreq: Math.min(...frequencyData)
+      });
+    }
 
     return {
       frequencyData,
       timeData,
       bufferLength,
     };
-  }, [audioContextData.analyserNode]);
+  }, [audioContextData.analyserNode, connectionMethod, currentSource]);
 
   const cleanup = useCallback(() => {
     const { audioContext, sourceNode } = audioContextData;

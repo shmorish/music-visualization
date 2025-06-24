@@ -28,7 +28,53 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
     return geometry.attributes.position.array.slice();
   }, [size]);
 
-  // Calculate frequency-based spike intensity
+  // Vocal detection based on human voice frequency characteristics
+  const detectVocalContent = (): number => {
+    if (!audioData || audioData.length === 0) return 0;
+    
+    const sampleRate = 44100; // Assume standard sample rate
+    const nyquist = sampleRate / 2;
+    const binSize = nyquist / audioData.length;
+    
+    // Define vocal frequency ranges (Hz to bin conversion)
+    const fundamentalMale = [85, 180].map(hz => Math.floor(hz / binSize)); // Male fundamental
+    const fundamentalFemale = [165, 255].map(hz => Math.floor(hz / binSize)); // Female fundamental
+    const vocalClarity = [250, 4000].map(hz => Math.floor(hz / binSize)); // Vocal clarity range
+    const harmonics = [1000, 4000].map(hz => Math.floor(hz / binSize)); // Most sensitive hearing range
+    
+    // Calculate energy in different frequency bands
+    const getEnergyInRange = (startBin: number, endBin: number): number => {
+      let energy = 0;
+      for (let i = Math.max(0, startBin); i < Math.min(audioData.length, endBin); i++) {
+        energy += audioData[i] * audioData[i]; // Power (energy)
+      }
+      return energy / (endBin - startBin);
+    };
+    
+    const maleFundamentalEnergy = getEnergyInRange(fundamentalMale[0], fundamentalMale[1]);
+    const femaleFundamentalEnergy = getEnergyInRange(fundamentalFemale[0], fundamentalFemale[1]);
+    const vocalClarityEnergy = getEnergyInRange(vocalClarity[0], vocalClarity[1]);
+    const harmonicsEnergy = getEnergyInRange(harmonics[0], harmonics[1]);
+    
+    // Calculate energy in non-vocal ranges for comparison
+    const lowBassEnergy = getEnergyInRange(0, Math.floor(80 / binSize)); // Below vocal range
+    const highTrebleEnergy = getEnergyInRange(Math.floor(5000 / binSize), audioData.length); // Above vocal range
+    
+    // Vocal score calculation
+    const fundamentalEnergy = Math.max(maleFundamentalEnergy, femaleFundamentalEnergy);
+    const totalVocalEnergy = vocalClarityEnergy + harmonicsEnergy + fundamentalEnergy;
+    const totalNonVocalEnergy = lowBassEnergy + highTrebleEnergy;
+    
+    // Vocal presence ratio (higher when vocals are present)
+    const vocalRatio = totalNonVocalEnergy > 0 ? totalVocalEnergy / (totalVocalEnergy + totalNonVocalEnergy) : 0;
+    
+    // Extra weight for the most important vocal clarity range (1kHz-4kHz)
+    const clarityBonus = harmonicsEnergy > 1000 ? 0.3 : 0;
+    
+    return Math.min(vocalRatio + clarityBonus, 1.0);
+  };
+
+  // Calculate frequency-based spike intensity with vocal enhancement
   const getFrequencyIntensity = (vertexIndex: number): number => {
     if (!audioData || audioData.length === 0) return intensity;
     
@@ -42,12 +88,16 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
     const freqBin = startFreq + Math.floor(vertexRatio * freqBinCount);
     const freqValue = audioData[Math.min(freqBin, audioData.length - 1)] / 255;
     
-    // Higher frequencies get moderate multiplier for gentle waves
+    // Higher frequencies get EXTREME multiplier for dramatic waves
     const freqNormalized = (freqBin - startFreq) / freqBinCount; // 0-1 range
-    const freqMultiplier = 1 + freqNormalized * 1.5; // 1x to 2.5x multiplier
+    const freqMultiplier = 1 + freqNormalized * 4; // 1x to 5x multiplier
     
-    // Linear scaling for natural wave motion
-    return intensity * freqValue * freqMultiplier * 0.8;
+    // Vocal enhancement: boost intensity when vocals are detected
+    const vocalPresence = detectVocalContent();
+    const vocalBoost = 1 + vocalPresence * 2; // Up to 3x boost for vocals
+    
+    // Power scaling for explosive wave motion with vocal enhancement
+    return Math.pow(intensity * freqValue * freqMultiplier * vocalBoost, 1.2) * 2;
   };
 
   useFrame((state, delta) => {
@@ -57,16 +107,17 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
     const geometry = geometryRef.current;
     const positions = geometry.attributes.position.array as Float32Array;
     
-    // Calculate gentle wave deformation based on intensity
-    const waveStrength = intensity * 0.3; // Gentle waves
-    const waveFrequency = 1 + intensity * 2; // Smooth frequency response
+    // Calculate DRAMATIC wave deformation based on intensity
+    const waveStrength = Math.pow(intensity, 0.7) * 1.5; // Power curve for more dramatic effect
+    const waveFrequency = 0.5 + intensity * 6; // Much more responsive frequency
     const time = state.clock.elapsedTime;
     
-    // Enhanced debug log
-    if (Math.floor(time * 10) % 30 === 0) { // Log every 3 seconds
+    // Enhanced debug log with vocal detection
+    if (Math.floor(time * 10) % 3000 === 0) { // Log every 3 seconds
       const hasAudioData = audioData && audioData.length > 0;
       const avgAudioLevel = hasAudioData ? 
         Array.from(audioData).reduce((a, b) => a + b, 0) / audioData.length : 0;
+      const vocalPresence = detectVocalContent();
       
       console.log('AudioReactiveSphere3D Debug:', {
         intensity,
@@ -74,8 +125,10 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
         hasAudioData,
         audioDataLength: audioData?.length || 0,
         avgAudioLevel,
+        vocalPresence: vocalPresence.toFixed(3),
+        vocalBoost: (1 + vocalPresence * 2).toFixed(2),
         frequencyRange,
-        baseScale: 0.5 + intensity * 0.5
+        baseScale: (0.2 + Math.pow(intensity, 0.8) * 2.3).toFixed(2)
       });
     }
 
@@ -106,9 +159,9 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
       const wavePhase2 = Math.cos(time * waveFrequency * 0.7 + wavePhase * 0.8);
       const combinedWave = (wavePhase1 + wavePhase2 * 0.5) / 1.5;
       
-      const waveIntensity = freqIntensity * waveStrength * (0.5 + 0.5 * combinedWave);
+      const waveIntensity = freqIntensity * waveStrength * (0.2 + 0.8 * combinedWave);
       
-      const newLength = size * (1 + waveIntensity * 0.4); // Gentle wave extension
+      const newLength = size * (1 + waveIntensity * 1.8); // EXTREME wave extension
       
       positions[i] = normalizedX * newLength;
       positions[i + 1] = normalizedY * newLength;
@@ -118,20 +171,26 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
     geometry.attributes.position.needsUpdate = true;
     geometry.computeVertexNormals();
     
-    // Moderate scale based on intensity for natural breathing effect
-    const baseScale = 0.5 + intensity * 0.5; // Scale from 0.5x to 1.0x for gentle size changes
+    // DRAMATIC scale based on intensity with vocal enhancement
+    const vocalPresence = detectVocalContent();
+    const vocalScaleBoost = 1 + vocalPresence * 0.5; // Extra 50% size when vocals detected
+    const baseScale = (0.2 + Math.pow(intensity, 0.8) * 2.3) * vocalScaleBoost; // Scale from 0.2x to 3.75x
     mesh.scale.setScalar(baseScale);
     
-    // Slow, steady rotation for dramatic effect
-    mesh.rotation.x += delta * 0.1;
-    mesh.rotation.y += delta * 0.15;
-    mesh.rotation.z += delta * 0.05;
+    // Dynamic rotation based on intensity
+    const rotationSpeed = 0.1 + intensity * 0.8; // More intense = faster rotation
+    mesh.rotation.x += delta * rotationSpeed;
+    mesh.rotation.y += delta * rotationSpeed * 1.2;
+    mesh.rotation.z += delta * rotationSpeed * 0.7;
   });
 
-  // Convert hex color to RGB values and create enhanced colors
+  // Convert hex color to RGB values and create enhanced colors with vocal detection
+  const vocalPresence = audioData ? detectVocalContent() : 0;
+  const vocalColorBoost = 1 + vocalPresence * 0.8; // Extra brightness for vocals
+  
   const baseColorObj = new THREE.Color(baseColor);
-  const brightColor = baseColorObj.clone().multiplyScalar(1.5); // Brighter version
-  const glowColor = baseColorObj.clone().multiplyScalar(2.0);   // Glow version
+  const brightColor = baseColorObj.clone().multiplyScalar(1.5 * vocalColorBoost); // Brighter with vocal boost
+  const glowColor = baseColorObj.clone().multiplyScalar(2.0 * vocalColorBoost);   // Glow with vocal boost
 
   return (
     <group>
@@ -148,7 +207,7 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
           wireframeLinecap='round'
           wireframeLinejoin='round'
           transparent
-          opacity={0.8 + intensity * 0.2} // Gentle opacity changes
+          opacity={0.5 + intensity * 0.5 + vocalPresence * 0.3} // Extra opacity for vocals
         />
       </mesh>
       
@@ -159,7 +218,7 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
           color={glowColor}
           wireframe={true}
           transparent
-          opacity={0.3 + intensity * 0.4} // Moderate glow variation
+          opacity={0.2 + intensity * 0.8 + vocalPresence * 0.4} // Extra glow for vocals
         />
       </mesh>
       
@@ -170,7 +229,7 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
           color={new THREE.Color(0x000000)}
           wireframe={true}
           transparent
-          opacity={0.2 + intensity * 0.2} // Subtle outline variation
+          opacity={0.1 + intensity * 0.4} // Dynamic outline variation
         />
       </mesh>
     </group>
