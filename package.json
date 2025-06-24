@@ -1,13 +1,35 @@
 {
   "name": "music-visualization",
   "version": "1.0.0",
-  "description": "YouTube音声波形ビジュアライザー - YouTubeから音声を取得して波形を表示するWebアプリケーション",
-  "main": "index.html",
+  "description": "YouTube音声波形ビジュアライザー - YouTubeから音声を取得して波形を表示するReact TypeScriptアプリケーション",
+  "private": true,
   "scripts": {
-    "dev": "npx http-server -c-1 -p 8080",
-    "start": "npx http-server -c-1 -p 8080",
-    "build": "echo 'Static site - no build process needed'",
-    "lint": "echo 'No linting configured yet'"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.15.0",
+    "@mui/icons-material": "^5.15.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8"
   },
   "keywords": [
     "music",
@@ -15,14 +37,14 @@
     "audio",
     "waveform",
     "youtube",
-    "web-audio-api"
+    "web-audio-api",
+    "react",
+    "typescript",
+    "material-ui"
   ],
   "author": "",
   "license": "MIT",
-  "devDependencies": {
-    "http-server": "^14.1.1"
-  },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.0.0"
   }
 }

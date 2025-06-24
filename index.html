@@ -1,92 +1,33 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>音楽波形ビジュアライザー</title>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Music Visualizer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="styles/main.css">
-</head>
-<body>
-    <div class="app-container">
-        <!-- Left Side - Beat Visualization -->
-        <div class="left-panel">
-            <div class="brand-section">
-                <h1 class="brand-title">Music<br>Visualizer</h1>
-                <p class="brand-subtitle">Experience your music in a new way</p>
-            </div>
-            
-            <div class="beat-visualization">
-                <div class="beat-sphere beat-sphere-1"></div>
-                <div class="beat-sphere beat-sphere-2"></div>
-                <div class="beat-sphere beat-sphere-3"></div>
-                <div class="beat-sphere beat-sphere-4"></div>
-                <div class="beat-sphere beat-sphere-5"></div>
-            </div>
-            
-            <div class="waveform-container">
-                <canvas id="visualizer-canvas" width="400" height="200"></canvas>
-            </div>
-        </div>
-
-        <!-- Right Side - Controls -->
-        <div class="right-panel">
-            <div class="control-section">
-                <div class="section-header">
-                    <span class="material-icons">link</span>
-                    <h2>YouTube Link</h2>
-                </div>
-                
-                <div class="input-field">
-                    <input type="url" id="youtube-url" placeholder="Paste YouTube URL here..." />
-                    <button id="load-video" class="btn-primary">
-                        <span class="material-icons">play_arrow</span>
-                        Load Video
-                    </button>
-                </div>
-            </div>
-
-            <div class="player-section">
-                <div id="youtube-player"></div>
-            </div>
-
-            <div class="controls-section">
-                <div class="section-header">
-                    <span class="material-icons">tune</span>
-                    <h2>Visualization Controls</h2>
-                </div>
-                
-                <div class="control-group">
-                    <button id="toggle-visualizer" class="btn-fab">
-                        <span class="material-icons">graphic_eq</span>
-                    </button>
-                    <span class="control-text">Start Visualization</span>
-                </div>
-
-                <div class="control-row">
-                    <div class="control-item">
-                        <label>Visualization Type</label>
-                        <select id="waveform-type">
-                            <option value="waveform">Waveform</option>
-                            <option value="frequency">Frequency</option>
-                        </select>
-                    </div>
-                    
-                    <div class="control-item">
-                        <label>Color</label>
-                        <input type="color" id="color-picker" value="#6750a4">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://www.youtube.com/iframe_api"></script>
-    <script src="src/audio-player.js"></script>
-    <script src="src/visualizer.js"></script>
-    <script src="src/ui.js"></script>
-</body>
+    <style>
+      body {
+        margin: 0;
+        background: linear-gradient(135deg, #ef866b 0%, #f7b46b 100%);
+        min-height: 100vh;
+        transition: background 0.3s ease;
+      }
+      
+      body.dark-mode {
+        background: linear-gradient(135deg, #28385E 0%, #516C8D 100%);
+      }
+      
+      #root {
+        width: 100%;
+        min-height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
