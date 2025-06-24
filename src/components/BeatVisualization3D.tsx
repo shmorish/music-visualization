@@ -57,16 +57,16 @@ const BeatVisualization3D: React.FC<BeatVisualization3DProps> = ({
       return 0.05;
     }
     
-    // EXTREME weight for dramatic effect - bass gets huge emphasis
-    const weightedIntensity = (lowAvg * 8 + midAvg * 5 + highAvg * 3) / (16 * 255);
+    // Moderate weight for controlled effect
+    const weightedIntensity = (lowAvg * 3 + midAvg * 2 + highAvg * 1.5) / (6.5 * 255);
     const rawIntensity = Math.min(weightedIntensity, 1);
     
     console.log('Audio intensity:', rawIntensity.toFixed(3), 'from', audioData.length, 'samples');
     console.log('Frequency averages - Low:', lowAvg.toFixed(1), 'Mid:', midAvg.toFixed(1), 'High:', highAvg.toFixed(1));
     
-    // MASSIVE amplification for extreme visual effect
-    const amplified = Math.pow(rawIntensity, 0.6) * 8; // Power curve + 8x amplification
-    return Math.max(0.05, Math.min(amplified, 4.0)); // Range: 0.05 to 4.0 (huge range!)
+    // Controlled amplification for manageable visual effect
+    const amplified = Math.pow(rawIntensity, 0.7) * 2.5; // Reduced from 8x to 2.5x
+    return Math.max(0.05, Math.min(amplified, 1.5)); // Range: 0.05 to 1.5 (manageable range)
   };
 
   return (

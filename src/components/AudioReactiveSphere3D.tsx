@@ -92,12 +92,12 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
     const freqNormalized = (freqBin - startFreq) / freqBinCount; // 0-1 range
     const freqMultiplier = 1 + freqNormalized * 4; // 1x to 5x multiplier
     
-    // Vocal enhancement: boost intensity when vocals are detected
+    // Vocal enhancement: moderate boost when vocals are detected
     const vocalPresence = detectVocalContent();
-    const vocalBoost = 1 + vocalPresence * 2; // Up to 3x boost for vocals
+    const vocalBoost = 1 + vocalPresence * 0.8; // Reduced from 2 to 0.8 (max 1.8x)
     
-    // Power scaling for explosive wave motion with vocal enhancement
-    return Math.pow(intensity * freqValue * freqMultiplier * vocalBoost, 1.2) * 2;
+    // Moderate scaling for controlled wave motion
+    return Math.pow(intensity * freqValue * freqMultiplier * vocalBoost, 1.1) * 0.8; // Reduced power and multiplier
   };
 
   useFrame((state, delta) => {
@@ -107,9 +107,9 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
     const geometry = geometryRef.current;
     const positions = geometry.attributes.position.array as Float32Array;
     
-    // Calculate DRAMATIC wave deformation based on intensity
-    const waveStrength = Math.pow(intensity, 0.7) * 1.5; // Power curve for more dramatic effect
-    const waveFrequency = 0.5 + intensity * 6; // Much more responsive frequency
+    // Calculate moderate wave deformation based on intensity
+    const waveStrength = Math.pow(intensity, 0.7) * 0.4; // Reduced from 1.5 to 0.4
+    const waveFrequency = 0.5 + intensity * 3; // Reduced from 6 to 3
     const time = state.clock.elapsedTime;
     
     // Enhanced debug log with vocal detection
@@ -161,7 +161,7 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
       
       const waveIntensity = freqIntensity * waveStrength * (0.2 + 0.8 * combinedWave);
       
-      const newLength = size * (1 + waveIntensity * 1.8); // EXTREME wave extension
+      const newLength = size * (1 + waveIntensity * 0.5); // Reduced from 1.8 to 0.5
       
       positions[i] = normalizedX * newLength;
       positions[i + 1] = normalizedY * newLength;
@@ -171,10 +171,10 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
     geometry.attributes.position.needsUpdate = true;
     geometry.computeVertexNormals();
     
-    // DRAMATIC scale based on intensity with vocal enhancement
+    // Moderate scale based on intensity with vocal enhancement
     const vocalPresence = detectVocalContent();
-    const vocalScaleBoost = 1 + vocalPresence * 0.5; // Extra 50% size when vocals detected
-    const baseScale = (0.2 + Math.pow(intensity, 0.8) * 2.3) * vocalScaleBoost; // Scale from 0.2x to 3.75x
+    const vocalScaleBoost = 1 + vocalPresence * 0.2; // Reduced from 0.5 to 0.2
+    const baseScale = (0.4 + Math.pow(intensity, 0.8) * 0.8) * vocalScaleBoost; // Scale from 0.4x to 1.44x
     mesh.scale.setScalar(baseScale);
     
     // Dynamic rotation based on intensity
@@ -186,11 +186,11 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
 
   // Convert hex color to RGB values and create enhanced colors with vocal detection
   const vocalPresence = audioData ? detectVocalContent() : 0;
-  const vocalColorBoost = 1 + vocalPresence * 0.8; // Extra brightness for vocals
+  const vocalColorBoost = 1 + vocalPresence * 0.3; // Reduced from 0.8 to 0.3
   
   const baseColorObj = new THREE.Color(baseColor);
-  const brightColor = baseColorObj.clone().multiplyScalar(1.5 * vocalColorBoost); // Brighter with vocal boost
-  const glowColor = baseColorObj.clone().multiplyScalar(2.0 * vocalColorBoost);   // Glow with vocal boost
+  const brightColor = baseColorObj.clone().multiplyScalar(1.2 * vocalColorBoost); // Reduced from 1.5
+  const glowColor = baseColorObj.clone().multiplyScalar(1.5 * vocalColorBoost);   // Reduced from 2.0
 
   return (
     <group>
@@ -207,7 +207,7 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
           wireframeLinecap='round'
           wireframeLinejoin='round'
           transparent
-          opacity={0.5 + intensity * 0.5 + vocalPresence * 0.3} // Extra opacity for vocals
+          opacity={0.6 + intensity * 0.3 + vocalPresence * 0.15} // Reduced opacity ranges
         />
       </mesh>
       
@@ -218,7 +218,7 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
           color={glowColor}
           wireframe={true}
           transparent
-          opacity={0.2 + intensity * 0.8 + vocalPresence * 0.4} // Extra glow for vocals
+          opacity={0.3 + intensity * 0.4 + vocalPresence * 0.2} // Reduced glow ranges
         />
       </mesh>
       

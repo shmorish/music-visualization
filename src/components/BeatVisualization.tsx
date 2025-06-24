@@ -191,9 +191,9 @@ const BeatVisualization: React.FC<BeatVisualizationProps> = ({
       return 0.05;
     }
     
-    // EXTREME amplification for dramatic effect
-    const rawIntensity = average / 50; // Increased sensitivity (was /100)
-    const intensity = Math.max(0.05, Math.min(5.0, Math.pow(rawIntensity, 0.7) * 3)); // Power curve + 3x amp
+    // Moderate amplification for controlled effect
+    const rawIntensity = average / 80; // Reduced sensitivity (was /50)
+    const intensity = Math.max(0.05, Math.min(2.0, Math.pow(rawIntensity, 0.8) * 1.8)); // Reduced max from 5.0 to 2.0
     
     // Debug: Log intensity for first sphere occasionally
     if (sphereId === 1 && Math.random() < 0.01) {
