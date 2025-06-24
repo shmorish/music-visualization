@@ -65,8 +65,8 @@ class UIController {
                 this.visualizer.setAnalyser(analyserNode);
                 this.visualizer.start();
                 this.isVisualizerRunning = true;
-                this.toggleButton.textContent = '波形表示を停止';
-                this.toggleButton.style.backgroundColor = '#ff4444';
+                this.updateVisualizerButton(true);
+                this.startBeatAnimation();
                 return;
             }
         }
@@ -74,15 +74,44 @@ class UIController {
         console.log('Audio analyser not available, starting demo mode');
         this.visualizer.startDemo();
         this.isVisualizerRunning = true;
-        this.toggleButton.textContent = '波形表示を停止 (デモモード)';
-        this.toggleButton.style.backgroundColor = '#ff4444';
+        this.updateVisualizerButton(true, true);
+        this.startBeatAnimation();
     }
 
     stopVisualizer() {
         this.visualizer.stop();
         this.isVisualizerRunning = false;
-        this.toggleButton.textContent = '波形表示を開始';
-        this.toggleButton.style.backgroundColor = '#4CAF50';
+        this.updateVisualizerButton(false);
+        this.stopBeatAnimation();
+    }
+
+    updateVisualizerButton(isRunning, isDemoMode = false) {
+        const icon = this.toggleButton.querySelector('.material-icons');
+        const text = document.querySelector('.control-text');
+        
+        if (isRunning) {
+            icon.textContent = 'stop';
+            text.textContent = isDemoMode ? 'Stop Visualization (Demo)' : 'Stop Visualization';
+            this.toggleButton.style.background = '#f44336';
+        } else {
+            icon.textContent = 'graphic_eq';
+            text.textContent = 'Start Visualization';
+            this.toggleButton.style.background = 'var(--md-sys-color-primary)';
+        }
+    }
+
+    startBeatAnimation() {
+        const beatContainer = document.querySelector('.beat-visualization');
+        if (beatContainer) {
+            beatContainer.classList.add('beat-active');
+        }
+    }
+
+    stopBeatAnimation() {
+        const beatContainer = document.querySelector('.beat-visualization');
+        if (beatContainer) {
+            beatContainer.classList.remove('beat-active');
+        }
     }
 
     showStatus(message, type = 'info') {

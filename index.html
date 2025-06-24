@@ -4,48 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>音楽波形ビジュアライザー</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🎵 音楽波形ビジュアライザー</h1>
-            <p>YouTubeの動画から音声を取得して波形を表示します</p>
-        </header>
+    <div class="app-container">
+        <!-- Left Side - Beat Visualization -->
+        <div class="left-panel">
+            <div class="brand-section">
+                <h1 class="brand-title">Music<br>Visualizer</h1>
+                <p class="brand-subtitle">Experience your music in a new way</p>
+            </div>
+            
+            <div class="beat-visualization">
+                <div class="beat-sphere beat-sphere-1"></div>
+                <div class="beat-sphere beat-sphere-2"></div>
+                <div class="beat-sphere beat-sphere-3"></div>
+                <div class="beat-sphere beat-sphere-4"></div>
+                <div class="beat-sphere beat-sphere-5"></div>
+            </div>
+            
+            <div class="waveform-container">
+                <canvas id="visualizer-canvas" width="400" height="200"></canvas>
+            </div>
+        </div>
 
-        <main>
-            <section class="input-section">
-                <div class="url-input">
-                    <label for="youtube-url">YouTube URL:</label>
-                    <input type="url" id="youtube-url" placeholder="https://www.youtube.com/watch?v=..." />
-                    <button id="load-video">動画を読み込み</button>
+        <!-- Right Side - Controls -->
+        <div class="right-panel">
+            <div class="control-section">
+                <div class="section-header">
+                    <span class="material-icons">link</span>
+                    <h2>YouTube Link</h2>
                 </div>
-            </section>
+                
+                <div class="input-field">
+                    <input type="url" id="youtube-url" placeholder="Paste YouTube URL here..." />
+                    <button id="load-video" class="btn-primary">
+                        <span class="material-icons">play_arrow</span>
+                        Load Video
+                    </button>
+                </div>
+            </div>
 
-            <section class="player-section">
+            <div class="player-section">
                 <div id="youtube-player"></div>
-            </section>
+            </div>
 
-            <section class="visualizer-section">
-                <div class="controls">
-                    <button id="toggle-visualizer">波形表示を開始</button>
-                    <div class="visualization-controls">
-                        <label>
-                            波形タイプ:
-                            <select id="waveform-type">
-                                <option value="waveform">波形</option>
-                                <option value="frequency">周波数</option>
-                            </select>
-                        </label>
-                        <label>
-                            色:
-                            <input type="color" id="color-picker" value="#00ff00">
-                        </label>
+            <div class="controls-section">
+                <div class="section-header">
+                    <span class="material-icons">tune</span>
+                    <h2>Visualization Controls</h2>
+                </div>
+                
+                <div class="control-group">
+                    <button id="toggle-visualizer" class="btn-fab">
+                        <span class="material-icons">graphic_eq</span>
+                    </button>
+                    <span class="control-text">Start Visualization</span>
+                </div>
+
+                <div class="control-row">
+                    <div class="control-item">
+                        <label>Visualization Type</label>
+                        <select id="waveform-type">
+                            <option value="waveform">Waveform</option>
+                            <option value="frequency">Frequency</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label>Color</label>
+                        <input type="color" id="color-picker" value="#6750a4">
                     </div>
                 </div>
-                <canvas id="visualizer-canvas" width="800" height="300"></canvas>
-            </section>
-        </main>
+            </div>
+        </div>
     </div>
 
     <script src="https://www.youtube.com/iframe_api"></script>
