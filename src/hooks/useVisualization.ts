@@ -9,10 +9,10 @@ export const useVisualization = () => {
     smoothing: 0.85,
     fftSize: 2048,
   });
+  const [currentData, setCurrentData] = useState<VisualizationData | null>(null);
 
   const animationFrameRef = useRef<number>();
   const getVisualizationDataRef = useRef<(() => VisualizationData | null) | null>(null);
-  const currentDataRef = useRef<VisualizationData | null>(null);
 
   const updateConfig = useCallback((newConfig: Partial<VisualizationConfig>) => {
     setConfig(prev => ({ ...prev, ...newConfig }));
@@ -31,7 +31,7 @@ export const useVisualization = () => {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = undefined;
     }
-    currentDataRef.current = null;
+    setCurrentData(null);
   }, []);
 
   const toggle = useCallback(() => {
@@ -50,8 +50,19 @@ export const useVisualization = () => {
       if (getVisualizationDataRef.current) {
         const newData = getVisualizationDataRef.current();
         if (newData) {
-          currentDataRef.current = newData;
+          setCurrentData(newData);
+          // Debug: Log audio data every 60 frames (~1 second)
+          if (Math.random() < 0.016) {
+            console.log('useVisualization: Audio data updated', {
+              frequencyDataLength: newData.frequencyData.length,
+              avgVolume: Array.from(newData.frequencyData).reduce((a, b) => a + b, 0) / newData.frequencyData.length
+            });
+          }
+        } else {
+          console.warn('useVisualization: No audio data received');
         }
+      } else {
+        console.warn('useVisualization: No getVisualizationData function');
       }
 
       if (isActive) {
@@ -80,7 +91,7 @@ export const useVisualization = () => {
   return {
     isActive,
     config,
-    currentData: currentDataRef.current,
+    currentData,
     updateConfig,
     start,
     stop,

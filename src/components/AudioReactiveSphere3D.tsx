@@ -19,9 +19,9 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
   const meshRef = useRef<THREE.Mesh>(null);
   const geometryRef = useRef<THREE.SphereGeometry>(null);
   
-  // Create spiky sphere geometry
+  // Create spiky sphere geometry with more vertices for sharp spikes
   const originalPositions = useMemo(() => {
-    const geometry = new THREE.SphereGeometry(size, 32, 16);
+    const geometry = new THREE.SphereGeometry(size, 32, 32); // Higher resolution for sharper spikes
     return geometry.attributes.position.array.slice();
   }, [size]);
 
@@ -32,14 +32,14 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
     const geometry = geometryRef.current;
     const positions = geometry.attributes.position.array as Float32Array;
     
-    // Calculate EXTREME deformation based on intensity
-    const deformationStrength = intensity * 3.0; // MASSIVE increase for violent movement
-    const waveFrequency = 2 + intensity * 8; // Much higher frequency response
+    // Calculate sharp spike deformation based on intensity
+    const spikeStrength = intensity * 2.0; // Strong spikes
+    const spikeFrequency = 3 + intensity * 5; // High frequency for sharp details
     const time = state.clock.elapsedTime;
     
     // Debug log
     if (Math.floor(time * 10) % 30 === 0) { // Log every 3 seconds
-      console.log('AudioReactiveSphere3D - intensity:', intensity, 'deformationStrength:', deformationStrength);
+      console.log('AudioReactiveSphere3D - intensity:', intensity, 'spikeStrength:', spikeStrength);
     }
 
     // Apply deformation to each vertex
@@ -54,18 +54,19 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
       const normalizedY = originalY / length;
       const normalizedZ = originalZ / length;
       
-      // Create VIOLENT spikes and waves based on audio intensity
-      const noise1 = Math.sin(time * waveFrequency + originalX * 8) * 
-                    Math.cos(time * waveFrequency * 1.3 + originalY * 6) *
-                    Math.sin(time * waveFrequency * 0.8 + originalZ * 7);
+      // Create sharp, angular spikes based on vertex position and audio intensity
+      const vertexIndex = Math.floor(i / 3);
+      const spikeSeed = Math.sin(vertexIndex * 0.1) * Math.cos(vertexIndex * 0.07); // Deterministic per vertex
       
-      const noise2 = Math.sin(time * waveFrequency * 2.1 + originalX * 12) * 
-                    Math.cos(time * waveFrequency * 1.7 + originalY * 9);
+      // Use vertex position as seed for consistent spike pattern
+      const spikePhase = originalX * 2 + originalY * 1.5 + originalZ * 1.7;
+      const audioPhase = Math.sin(time * spikeFrequency + spikePhase);
       
-      const combinedNoise = (noise1 + noise2 * 0.5) / 1.5;
+      // Create sharp, defined spikes (not smooth waves)
+      const spikeIntensity = Math.abs(spikeSeed) > 0.3 ? // Only certain vertices become spikes
+        spikeStrength * (0.5 + 0.5 * audioPhase) : 0;
       
-      const spikeAmount = deformationStrength * (1 + combinedNoise * 1.5); // EXTREME noise influence
-      const newLength = size * (1 + spikeAmount * 1.2); // MASSIVE deformation
+      const newLength = size * (1 + spikeIntensity * 0.8); // Sharp extension
       
       positions[i] = normalizedX * newLength;
       positions[i + 1] = normalizedY * newLength;
@@ -75,35 +76,49 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
     geometry.attributes.position.needsUpdate = true;
     geometry.computeVertexNormals();
     
-    // EXTREME scale effect based on intensity
-    const scale = 0.5 + intensity * 1.5; // Wild scaling from 0.5x to 2x
-    mesh.scale.setScalar(scale);
+    // Scale based on intensity - smaller when quiet
+    const baseScale = 0.3 + intensity * 0.7; // Scale from 0.3x to 1.0x based on audio
+    mesh.scale.setScalar(baseScale);
     
-    // VIOLENT rotation effect
-    mesh.rotation.x += delta * intensity * 3.0; // CRAZY fast rotation
-    mesh.rotation.y += delta * intensity * 2.5;
-    mesh.rotation.z += delta * intensity * 1.8; // Add Z-axis rotation for chaos
+    // Slow, steady rotation for dramatic effect
+    mesh.rotation.x += delta * 0.1;
+    mesh.rotation.y += delta * 0.15;
+    mesh.rotation.z += delta * 0.05;
   });
 
   // Convert hex color to RGB values for material
   const color = new THREE.Color(baseColor);
 
   return (
-    <mesh ref={meshRef} position={position}>
-      <sphereGeometry 
-        ref={geometryRef}
-        args={[size, 32, 16]} 
-      />
-      <meshPhongMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={intensity * 0.8} // INTENSE glow
-        transparent
-        opacity={0.6 + intensity * 0.4} // More dramatic transparency changes
-        shininess={30 + intensity * 200} // Variable shininess for chaos
-        wireframe={intensity > 0.8} // Switch to wireframe on high intensity
-      />
-    </mesh>
+    <group>
+      {/* Main wireframe sphere */}
+      <mesh ref={meshRef} position={position}>
+        <sphereGeometry 
+          ref={geometryRef}
+          args={[size, 64, 32]} 
+        />
+        <meshBasicMaterial
+          color={color}
+          wireframe={true}
+          wireframeLinewidth={2}
+          wireframeLinecap='round'
+          wireframeLinejoin='round'
+          transparent
+          opacity={0.8 + intensity * 0.2}
+        />
+      </mesh>
+      
+      {/* Thicker wireframe overlay for visibility */}
+      <mesh position={position}>
+        <sphereGeometry args={[size * 1.005, 32, 16]} />
+        <meshBasicMaterial
+          color={color}
+          wireframe={true}
+          transparent
+          opacity={0.4 + intensity * 0.3}
+        />
+      </mesh>
+    </group>
   );
 };
 

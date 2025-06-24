@@ -67,6 +67,18 @@ const BeatSphere: React.FC<BeatSphereProps> = ({
   intensity = 1,
   baseColor = '#ffffff'
 }) => {
+  const finalIntensity = Math.max(0.3, intensity);
+  
+  // Debug: Log intensity for first sphere occasionally
+  if (sphere.id === 1 && Math.random() < 0.01) {
+    console.log('BeatSphere: Rendering with intensity', { 
+      sphereId: sphere.id, 
+      isActive, 
+      rawIntensity: intensity, 
+      finalIntensity 
+    });
+  }
+  
   return (
     <StyledSphere
       size={sphere.size}
@@ -74,7 +86,7 @@ const BeatSphere: React.FC<BeatSphereProps> = ({
       y={sphere.position.y}
       delay={sphere.animationDelay}
       isActive={isActive}
-      intensity={Math.max(0.3, intensity)}
+      intensity={finalIntensity}
       basecolor={baseColor}
     />
   );

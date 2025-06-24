@@ -136,7 +136,13 @@ const BeatVisualization: React.FC<BeatVisualizationProps> = ({
   ], []);
 
   const getIntensityForSphere = (sphereId: number): number => {
-    if (!audioData || !isActive) return 1;
+    if (!audioData || !isActive) {
+      // Debug: Log when no audio data
+      if (sphereId === 1 && Math.random() < 0.01) {
+        console.log('BeatVisualization: No audio data', { audioData: !!audioData, isActive });
+      }
+      return 1;
+    }
     
     // Different frequency ranges for each sphere (15 spheres total)
     const ranges: Record<number, [number, number]> = {
@@ -175,8 +181,14 @@ const BeatVisualization: React.FC<BeatVisualizationProps> = ({
     if (count === 0) return 0.5;
     
     const average = sum / count;
-    // More dynamic range for better visual impact
-    return Math.max(0.3, Math.min(2.5, average / 100));
+    const intensity = Math.max(0.3, Math.min(2.5, average / 100));
+    
+    // Debug: Log intensity for first sphere occasionally
+    if (sphereId === 1 && Math.random() < 0.01) {
+      console.log('BeatVisualization: Sphere intensity', { sphereId, average, intensity, audioDataLength: audioData.length });
+    }
+    
+    return intensity;
   };
 
   return (
