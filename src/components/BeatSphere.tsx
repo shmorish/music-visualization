@@ -17,7 +17,7 @@ const StyledSphere = styled(Box)<{
   isActive: boolean;
   intensity: number;
   basecolor: string;
-}>(({ theme, size, x, y, delay, isActive, intensity, basecolor }) => ({
+}>(({ size, x, y, delay, isActive, intensity, basecolor }) => ({
   position: 'absolute',
   width: size,
   height: size,

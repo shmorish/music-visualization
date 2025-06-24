@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, styled } from '@mui/material';
 import { GraphicEq } from '@mui/icons-material';
-import BeatVisualization from './BeatVisualization';
+import BeatVisualization3D from './BeatVisualization3D';
 import { VisualizationData } from '@/types/audio';
 
 interface LeftPanelProps {
@@ -69,7 +69,7 @@ const BrandSubtitle = styled(Typography)(({ theme }) => ({
   },
 }));
 
-const AudioOnlyBadge = styled(Box)(({ theme }) => ({
+const AudioOnlyBadge = styled(Box)(() => ({
   display: 'inline-flex',
   alignItems: 'center',
   gap: 8,
@@ -97,6 +97,8 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
   audioData,
   sphereColor = '#ffffff',
 }) => {
+  console.log('LeftPanel - isVisualizerActive:', isVisualizerActive, 'audioData:', audioData);
+  
   return (
     <Panel>
       <BrandSection>
@@ -113,7 +115,7 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
         </AudioOnlyBadge>
       </BrandSection>
       
-      <BeatVisualization
+      <BeatVisualization3D
         isActive={isVisualizerActive}
         audioData={audioData?.frequencyData}
         sphereColor={sphereColor}

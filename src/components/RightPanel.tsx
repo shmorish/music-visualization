@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, styled } from '@mui/material';
 import ControlSection from './ControlSection';
 import AudioStatus from './AudioStatus';
+import AudioSourceSelector, { AudioSourceType } from './AudioSourceSelector';
 import YouTubePlayer, { YouTubePlayerRef } from './YouTubePlayer';
 import { VisualizationConfig, PlayerStatus } from '@/types/audio';
 import { YouTubePlayerInstance } from '@/types/youtube';
@@ -11,13 +12,16 @@ interface RightPanelProps {
   onUrlChange: (url: string) => void;
   onLoadVideo: () => void;
   videoId: string;
-  isVisualizerActive: boolean;
-  onToggleVisualizer: () => void;
+  isPlaying: boolean;
+  onTogglePlayback: () => void;
   visualizationConfig: VisualizationConfig;
   onConfigChange: (config: Partial<VisualizationConfig>) => void;
   isLoading: boolean;
   playerStatus: PlayerStatus;
   hasAudio: boolean;
+  audioSource: AudioSourceType;
+  onAudioSourceChange: (source: AudioSourceType) => void;
+  connectionMethod?: string;
   onPlayerReady?: (player: YouTubePlayerInstance) => void;
   onPlayerStateChange?: (event: { data: number; target: YouTubePlayerInstance }) => void;
   onPlayerError?: (event: { data: number; target: YouTubePlayerInstance }) => void;
@@ -52,13 +56,16 @@ const RightPanel: React.FC<RightPanelProps> = ({
   onUrlChange,
   onLoadVideo,
   videoId,
-  isVisualizerActive,
-  onToggleVisualizer,
+  isPlaying,
+  onTogglePlayback,
   visualizationConfig,
   onConfigChange,
   isLoading,
   playerStatus,
   hasAudio,
+  audioSource,
+  onAudioSourceChange,
+  connectionMethod,
   onPlayerReady,
   onPlayerStateChange,
   onPlayerError,
@@ -70,22 +77,30 @@ const RightPanel: React.FC<RightPanelProps> = ({
         youtubeUrl={youtubeUrl}
         onUrlChange={onUrlChange}
         onLoadVideo={onLoadVideo}
-        isVisualizerActive={isVisualizerActive}
-        onToggleVisualizer={onToggleVisualizer}
+        isPlaying={isPlaying}
+        onTogglePlayback={onTogglePlayback}
         visualizationConfig={visualizationConfig}
         onConfigChange={onConfigChange}
         isLoading={isLoading}
       />
 
+      <AudioSourceSelector
+        selectedSource={audioSource}
+        onSourceChange={onAudioSourceChange}
+        hasVideo={!!videoId}
+        isConnected={hasAudio}
+        connectionMethod={connectionMethod || undefined}
+      />
+
       <AudioStatus
         status={playerStatus}
-        isVisualizerActive={isVisualizerActive}
+        isVisualizerActive={isPlaying}
         hasAudio={hasAudio}
       />
 
-      {/* Hidden YouTube Player for audio only */}
+      {/* YouTube Player for audio playback */}
       {videoId && (
-        <Box sx={{ display: 'none' }}>
+        <PlayerSection>
           <YouTubePlayer
             ref={playerRef}
             videoId={videoId}
@@ -93,7 +108,7 @@ const RightPanel: React.FC<RightPanelProps> = ({
             onStateChange={onPlayerStateChange}
             onError={onPlayerError}
           />
-        </Box>
+        </PlayerSection>
       )}
     </Panel>
   );

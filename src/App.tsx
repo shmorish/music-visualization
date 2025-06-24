@@ -38,7 +38,7 @@ const App: React.FC = () => {
   
   // Theme management
   const { isDarkMode, toggleTheme, themeMode } = useThemeMode();
-  const currentTheme = getThemeByMode(themeMode);
+  const currentTheme = getThemeByMode(themeMode as 'light' | 'dark');
 
   // Custom hooks
   const {
@@ -49,6 +49,8 @@ const App: React.FC = () => {
     handlePlayerReady,
     handlePlayerStateChange,
     handlePlayerError,
+    playVideo,
+    pauseVideo,
     getPlayerInstance,
   } = useYouTubePlayer();
 
@@ -56,18 +58,19 @@ const App: React.FC = () => {
     audioContextData,
     isReady: audioReady,
     error: audioError,
+    currentSource: audioSource,
+    connectionMethod,
     connectToYouTubePlayer,
+    connectToAudioSource,
     getVisualizationData,
   } = useAudioContext();
 
   const {
-    isActive: isVisualizerActive,
     config: visualizationConfig,
     currentData: visualizationData,
     updateConfig: updateVisualizationConfig,
     start: startVisualization,
     stop: stopVisualization,
-    toggle: toggleVisualization,
   } = useVisualization();
 
   // Show notifications for errors
@@ -91,26 +94,43 @@ const App: React.FC = () => {
     }
   }, [audioError]);
 
+  // Handle audio source change
+  const handleAudioSourceChange = useCallback(async (source: typeof audioSource) => {
+    try {
+      const player = getPlayerInstance();
+      const connected = await connectToAudioSource(source, player || undefined);
+      
+      if (connected) {
+        setNotification({
+          open: true,
+          message: `Connected to ${source} audio source`,
+          severity: 'success',
+        });
+      } else {
+        setNotification({
+          open: true,
+          message: `Failed to connect to ${source} audio source`,
+          severity: 'error',
+        });
+      }
+    } catch (err) {
+      setNotification({
+        open: true,
+        message: `Error connecting to ${source}: ${err}`,
+        severity: 'error',
+      });
+    }
+  }, [connectToAudioSource, getPlayerInstance]);
+
   // Handle player ready event
   const onPlayerReady = useCallback(async (player: YouTubePlayerInstance) => {
     handlePlayerReady(player);
     
-    // Try to connect audio context to player
-    const connected = await connectToYouTubePlayer(player);
-    if (connected) {
-      setNotification({
-        open: true,
-        message: 'Audio visualization ready!',
-        severity: 'success',
-      });
-    } else {
-      setNotification({
-        open: true,
-        message: 'Using demo mode for visualization',
-        severity: 'info',
-      });
+    // Automatically try to connect to video audio if that's the selected source
+    if (audioSource === 'video') {
+      await handleAudioSourceChange('video');
     }
-  }, [handlePlayerReady, connectToYouTubePlayer]);
+  }, [handlePlayerReady, audioSource, handleAudioSourceChange]);
 
   // Handle load video
   const onLoadVideo = useCallback(() => {
@@ -124,38 +144,41 @@ const App: React.FC = () => {
     }
   }, [youtubeUrl, loadVideo]);
 
-  // Handle visualization toggle
-  const onToggleVisualizer = useCallback(() => {
-    if (isVisualizerActive) {
+  // Handle playback toggle
+  const onTogglePlayback = useCallback(() => {
+    if (playerStatus === 'playing') {
+      pauseVideo();
       stopVisualization();
-    } else {
+    } else if (playerStatus === 'paused' || playerStatus === 'ready') {
+      playVideo();
+      // Start visualization when playing
       if (audioReady && getVisualizationData) {
         startVisualization(getVisualizationData);
       } else {
-        // Start in demo mode
         startVisualization();
       }
       
       setNotification({
         open: true,
-        message: audioReady ? 'Visualization started' : 'Demo visualization started',
+        message: audioReady ? 'Playing with visualization' : 'Playing with demo visualization',
         severity: 'success',
       });
     }
-  }, [isVisualizerActive, audioReady, getVisualizationData, startVisualization, stopVisualization]);
+  }, [playerStatus, playVideo, pauseVideo, audioReady, getVisualizationData, startVisualization, stopVisualization]);
 
   const handleCloseNotification = useCallback(() => {
     setNotification(prev => ({ ...prev, open: false }));
   }, []);
 
   const isLoading = playerStatus === 'loading';
+  const isPlaying = playerStatus === 'playing';
 
   return (
     <ThemeProvider theme={currentTheme}>
       <CssBaseline />
       <AppContainer>
         <LeftPanel
-          isVisualizerActive={isVisualizerActive}
+          isVisualizerActive={isPlaying}
           audioData={visualizationData || undefined}
           sphereColor={visualizationConfig.color}
         />
@@ -165,13 +188,16 @@ const App: React.FC = () => {
           onUrlChange={setYoutubeUrl}
           onLoadVideo={onLoadVideo}
           videoId={videoId}
-          isVisualizerActive={isVisualizerActive}
-          onToggleVisualizer={onToggleVisualizer}
+          isPlaying={isPlaying}
+          onTogglePlayback={onTogglePlayback}
           visualizationConfig={visualizationConfig}
           onConfigChange={updateVisualizationConfig}
           isLoading={isLoading}
           playerStatus={playerStatus}
           hasAudio={audioReady}
+          audioSource={audioSource}
+          onAudioSourceChange={handleAudioSourceChange}
+          connectionMethod={connectionMethod || undefined}
           onPlayerReady={onPlayerReady}
           onPlayerStateChange={handlePlayerStateChange}
           onPlayerError={handlePlayerError}

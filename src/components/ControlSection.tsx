@@ -11,9 +11,8 @@ import {
 import {
   Link as LinkIcon,
   PlayArrow as PlayArrowIcon,
-  Stop as StopIcon,
-  GraphicEq as GraphicEqIcon,
-  Tune as TuneIcon,
+  Pause as PauseIcon,
+  VolumeUp as VolumeUpIcon,
 } from '@mui/icons-material';
 import { VisualizationConfig } from '@/types/audio';
 
@@ -21,8 +20,8 @@ interface ControlSectionProps {
   youtubeUrl: string;
   onUrlChange: (url: string) => void;
   onLoadVideo: () => void;
-  isVisualizerActive: boolean;
-  onToggleVisualizer: () => void;
+  isPlaying: boolean;
+  onTogglePlayback: () => void;
   visualizationConfig: VisualizationConfig;
   onConfigChange: (config: Partial<VisualizationConfig>) => void;
   isLoading: boolean;
@@ -88,8 +87,8 @@ const ControlSection: React.FC<ControlSectionProps> = ({
   youtubeUrl,
   onUrlChange,
   onLoadVideo,
-  isVisualizerActive,
-  onToggleVisualizer,
+  isPlaying,
+  onTogglePlayback,
   visualizationConfig,
   onConfigChange,
   isLoading,
@@ -120,7 +119,7 @@ const ControlSection: React.FC<ControlSectionProps> = ({
               type="url"
               value={youtubeUrl}
               onChange={(e) => onUrlChange(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyPress}
               placeholder="Paste YouTube URL here..."
               variant="outlined"
               disabled={isLoading}
@@ -138,33 +137,33 @@ const ControlSection: React.FC<ControlSectionProps> = ({
         </InputSection>
       </Box>
 
-      {/* Visualization Controls Section */}
+      {/* Audio Playback Controls Section */}
       <Box>
         <SectionHeader>
           <SectionIcon>
-            <TuneIcon />
+            <VolumeUpIcon />
           </SectionIcon>
           <Typography variant="h5" component="h2">
-            Visualization Controls
+            Audio Playback
           </Typography>
         </SectionHeader>
         
         <ControlGroup>
           <Fab
             color="primary"
-            onClick={onToggleVisualizer}
+            onClick={onTogglePlayback}
             sx={{
-              backgroundColor: isVisualizerActive ? 'error.main' : 'primary.main',
+              backgroundColor: isPlaying ? 'error.main' : 'primary.main',
               '&:hover': {
-                backgroundColor: isVisualizerActive ? 'error.dark' : 'primary.dark',
+                backgroundColor: isPlaying ? 'error.dark' : 'primary.dark',
                 transform: 'scale(1.05)',
               },
             }}
           >
-            {isVisualizerActive ? <StopIcon /> : <GraphicEqIcon />}
+            {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
           </Fab>
           <ControlText>
-            {isVisualizerActive ? 'Stop Visualization' : 'Start Visualization'}
+            {isPlaying ? 'Pause Audio' : 'Play Audio'}
           </ControlText>
         </ControlGroup>
 
