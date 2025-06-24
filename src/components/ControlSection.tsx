@@ -5,7 +5,6 @@ import {
   TextField,
   Button,
   Fab,
-  Grid,
   styled,
 } from '@mui/material';
 import {
@@ -14,7 +13,6 @@ import {
   Pause as PauseIcon,
   VolumeUp as VolumeUpIcon,
 } from '@mui/icons-material';
-import { VisualizationConfig } from '@/types/audio';
 
 interface ControlSectionProps {
   youtubeUrl: string;
@@ -22,8 +20,6 @@ interface ControlSectionProps {
   onLoadVideo: () => void;
   isPlaying: boolean;
   onTogglePlayback: () => void;
-  visualizationConfig: VisualizationConfig;
-  onConfigChange: (config: Partial<VisualizationConfig>) => void;
   isLoading: boolean;
 }
 
@@ -64,24 +60,6 @@ const ControlText = styled(Typography)(({ theme }) => ({
   fontWeight: 500,
 }));
 
-const ColorInput = styled('input')(({ theme }) => ({
-  width: 60,
-  height: 48,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: 8,
-  cursor: 'pointer',
-  background: 'none',
-  padding: 0,
-  
-  '&::-webkit-color-swatch-wrapper': {
-    padding: 0,
-  },
-  
-  '&::-webkit-color-swatch': {
-    border: 'none',
-    borderRadius: 6,
-  },
-}));
 
 const ControlSection: React.FC<ControlSectionProps> = ({
   youtubeUrl,
@@ -89,8 +67,6 @@ const ControlSection: React.FC<ControlSectionProps> = ({
   onLoadVideo,
   isPlaying,
   onTogglePlayback,
-  visualizationConfig,
-  onConfigChange,
   isLoading,
 }) => {
   const handleKeyPress = (event: React.KeyboardEvent) => {
@@ -167,29 +143,6 @@ const ControlSection: React.FC<ControlSectionProps> = ({
           </ControlText>
         </ControlGroup>
 
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Box>
-              <Typography 
-                variant="body2" 
-                component="label" 
-                sx={{ 
-                  display: 'block', 
-                  mb: 1, 
-                  fontWeight: 500,
-                  color: 'text.secondary'
-                }}
-              >
-                Sphere Color
-              </Typography>
-              <ColorInput
-                type="color"
-                value={visualizationConfig.color}
-                onChange={(e) => onConfigChange({ color: e.target.value })}
-              />
-            </Box>
-          </Grid>
-        </Grid>
       </Box>
     </Box>
   );

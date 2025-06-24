@@ -9,7 +9,6 @@ export interface AudioPlayerState {
 
 export interface VisualizationConfig {
   type: 'waveform' | 'frequency';
-  color: string;
   smoothing: number;
   fftSize: number;
 }

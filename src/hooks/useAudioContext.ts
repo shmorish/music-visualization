@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { AudioContextData, VisualizationData } from '@/types/audio';
 import { YouTubePlayerInstance } from '@/types/youtube';
 
-export type AudioSourceType = 'video' | 'microphone' | 'demo';
+export type AudioSourceType = 'video';
 
 export const useAudioContext = () => {
   const [audioContextData, setAudioContextData] = useState<AudioContextData>({
@@ -233,36 +233,8 @@ export const useAudioContext = () => {
     }
   }, []);
 
-  const connectToYouTubePlayer = useCallback(async (player: YouTubePlayerInstance) => {
-    try {
-      const audioContext = audioContextData.audioContext || initializeAudioContext();
-      if (!audioContext) return false;
 
-      // Resume audio context if suspended
-      if (audioContext.state === 'suspended') {
-        await audioContext.resume();
-      }
-
-      // Enhanced YouTube audio extraction attempts
-      const success = await tryMultipleAudioExtractionMethods(audioContext, player);
-      if (success) {
-        console.log('Successfully connected to YouTube audio');
-        return true;
-      }
-
-      console.warn('All YouTube audio extraction methods failed, using fallback');
-      return await setupAlternativeAudioCapture(audioContext);
-
-    } catch (err) {
-      console.error('Failed to connect to YouTube player:', err);
-      return await setupAlternativeAudioCapture(audioContextData.audioContext);
-    }
-  }, [audioContextData.audioContext, initializeAudioContext]);
-
-  const connectToAudioSource = useCallback(async (
-    source: AudioSourceType,
-    player?: YouTubePlayerInstance
-  ): Promise<boolean> => {
+  const connectToYouTubePlayer = useCallback(async (player: YouTubePlayerInstance): Promise<boolean> => {
     const audioContext = audioContextData.audioContext || initializeAudioContext();
     if (!audioContext) return false;
 
@@ -272,121 +244,20 @@ export const useAudioContext = () => {
     }
 
     try {
-      switch (source) {
-        case 'video':
-          if (!player) {
-            throw new Error('YouTube player required for video audio source');
-          }
-          const videoSuccess = await tryMultipleAudioExtractionMethods(audioContext, player);
-          if (videoSuccess) {
-            setCurrentSource('video');
-            return true;
-          }
-          throw new Error('All video audio extraction methods failed');
-
-        case 'microphone':
-          const micSuccess = await setupMicrophoneCapture(audioContext);
-          if (micSuccess) {
-            setCurrentSource('microphone');
-            return true;
-          }
-          throw new Error('Microphone access failed');
-
-        case 'demo':
-          const demoSuccess = await createDummyAnalyser(audioContext);
-          if (demoSuccess) {
-            setCurrentSource('demo');
-            return true;
-          }
-          throw new Error('Demo mode setup failed');
-
-        default:
-          throw new Error(`Unknown audio source: ${source}`);
+      const success = await tryMultipleAudioExtractionMethods(audioContext, player);
+      if (success) {
+        setCurrentSource('video');
+        console.log('Successfully connected to YouTube audio');
+        return true;
       }
+      throw new Error('All video audio extraction methods failed');
     } catch (err) {
-      console.error(`Failed to connect to ${source} audio source:`, err);
-      setError(`Failed to connect to ${source} audio source`);
+      console.error('Failed to connect to YouTube player:', err);
+      setError('Failed to connect to YouTube player');
       return false;
     }
-  }, [audioContextData.audioContext, initializeAudioContext]);
+  }, [audioContextData.audioContext, initializeAudioContext, tryMultipleAudioExtractionMethods]);
 
-  const setupMicrophoneCapture = useCallback(async (audioContext: AudioContext): Promise<boolean> => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: false,
-        } 
-      });
-      
-      const sourceNode = audioContext.createMediaStreamSource(stream);
-      const analyserNode = audioContext.createAnalyser();
-      
-      analyserNode.fftSize = 2048;
-      analyserNode.smoothingTimeConstant = 0.85;
-      
-      sourceNode.connect(analyserNode);
-      
-      setAudioContextData(prev => ({
-        ...prev,
-        analyserNode,
-        sourceNode,
-      }));
-      
-      setIsReady(true);
-      setError(null);
-      setConnectionMethod('Microphone Input');
-      return true;
-    } catch (err) {
-      throw new Error(`Microphone access failed: ${err}`);
-    }
-  }, []);
-
-  const setupAlternativeAudioCapture = useCallback(async (audioContext: AudioContext | null) => {
-    if (!audioContext) return false;
-
-    // Try microphone first, then demo mode
-    try {
-      return await setupMicrophoneCapture(audioContext);
-    } catch (micError) {
-      console.warn('Microphone access failed, creating dummy analyser:', micError);
-      return createDummyAnalyser(audioContext);
-    }
-  }, [setupMicrophoneCapture]);
-
-  const createDummyAnalyser = useCallback((audioContext: AudioContext) => {
-    try {
-      const analyserNode = audioContext.createAnalyser();
-      analyserNode.fftSize = 2048;
-      
-      // Create a dummy oscillator for demo purposes
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
-      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(analyserNode);
-      oscillator.start();
-      
-      setAudioContextData(prev => ({
-        ...prev,
-        analyserNode,
-        sourceNode: gainNode,
-      }));
-      
-      setIsReady(true);
-      setError(null);
-      setConnectionMethod('Demo Mode');
-      return true;
-    } catch (err) {
-      console.error('Failed to create dummy analyser:', err);
-      setError('Failed to initialize audio visualization');
-      return false;
-    }
-  }, []);
 
   const getVisualizationData = useCallback((): VisualizationData | null => {
     const { analyserNode } = audioContextData;
@@ -468,7 +339,6 @@ export const useAudioContext = () => {
     connectionMethod,
     initializeAudioContext,
     connectToYouTubePlayer,
-    connectToAudioSource,
     getVisualizationData,
     cleanup,
   };

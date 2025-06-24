@@ -14,6 +14,7 @@ interface AudioStatusProps {
   status: PlayerStatus;
   isVisualizerActive: boolean;
   hasAudio: boolean;
+  connectionMethod?: string;
   videoTitle?: string;
 }
 
@@ -51,6 +52,7 @@ const AudioStatus: React.FC<AudioStatusProps> = ({
   status,
   isVisualizerActive,
   hasAudio,
+  connectionMethod,
   videoTitle,
 }) => {
   const getStatusConfig = () => {
@@ -124,12 +126,12 @@ const AudioStatus: React.FC<AudioStatusProps> = ({
 
       <StatusRow>
         <Typography variant="body2" color="text.secondary">
-          Audio Source
+          YouTube Audio
         </Typography>
         <StatusChip
           statuscolor={hasAudio ? '#4caf50' : '#9e9e9e'}
           icon={<MusicNote />}
-          label={hasAudio ? 'Connected' : 'None'}
+          label={hasAudio ? (connectionMethod || 'Connected') : 'Disconnected'}
           size="small"
         />
       </StatusRow>

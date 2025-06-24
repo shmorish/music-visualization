@@ -61,14 +61,11 @@ const App: React.FC = () => {
     currentSource: audioSource,
     connectionMethod,
     connectToYouTubePlayer,
-    connectToAudioSource,
     getVisualizationData,
   } = useAudioContext();
 
   const {
-    config: visualizationConfig,
     currentData: visualizationData,
-    updateConfig: updateVisualizationConfig,
     start: startVisualization,
     stop: stopVisualization,
   } = useVisualization();
@@ -94,43 +91,34 @@ const App: React.FC = () => {
     }
   }, [audioError]);
 
-  // Handle audio source change
-  const handleAudioSourceChange = useCallback(async (source: typeof audioSource) => {
+  // Handle player ready event
+  const onPlayerReady = useCallback(async (player: YouTubePlayerInstance) => {
+    handlePlayerReady(player);
+    
+    // Automatically try to connect to YouTube audio
     try {
-      const player = getPlayerInstance();
-      const connected = await connectToAudioSource(source, player || undefined);
-      
+      const connected = await connectToYouTubePlayer(player);
       if (connected) {
         setNotification({
           open: true,
-          message: `Connected to ${source} audio source`,
+          message: 'Connected to YouTube audio',
           severity: 'success',
         });
       } else {
         setNotification({
           open: true,
-          message: `Failed to connect to ${source} audio source`,
-          severity: 'error',
+          message: 'Failed to connect to YouTube audio',
+          severity: 'warning',
         });
       }
     } catch (err) {
       setNotification({
         open: true,
-        message: `Error connecting to ${source}: ${err}`,
+        message: `Error connecting to YouTube: ${err}`,
         severity: 'error',
       });
     }
-  }, [connectToAudioSource, getPlayerInstance]);
-
-  // Handle player ready event
-  const onPlayerReady = useCallback(async (player: YouTubePlayerInstance) => {
-    handlePlayerReady(player);
-    
-    // Automatically try to connect to video audio if that's the selected source
-    if (audioSource === 'video') {
-      await handleAudioSourceChange('video');
-    }
-  }, [handlePlayerReady, audioSource, handleAudioSourceChange]);
+  }, [handlePlayerReady, connectToYouTubePlayer]);
 
   // Handle load video
   const onLoadVideo = useCallback(() => {
@@ -173,6 +161,9 @@ const App: React.FC = () => {
   const isLoading = playerStatus === 'loading';
   const isPlaying = playerStatus === 'playing';
   
+  // Fixed sphere colors based on theme
+  const sphereColor = isDarkMode ? '#ef866b' : '#28385E'; // Light blue for dark mode, dark blue for light mode
+  
   // Debug: Log visualization data periodically
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -199,7 +190,7 @@ const App: React.FC = () => {
         <LeftPanel
           isVisualizerActive={isPlaying}
           audioData={visualizationData || undefined}
-          sphereColor={visualizationConfig.color}
+          sphereColor={sphereColor}
         />
         
         <RightPanel
@@ -209,13 +200,9 @@ const App: React.FC = () => {
           videoId={videoId}
           isPlaying={isPlaying}
           onTogglePlayback={onTogglePlayback}
-          visualizationConfig={visualizationConfig}
-          onConfigChange={updateVisualizationConfig}
           isLoading={isLoading}
           playerStatus={playerStatus}
           hasAudio={audioReady}
-          audioSource={audioSource}
-          onAudioSourceChange={handleAudioSourceChange}
           connectionMethod={connectionMethod || undefined}
           onPlayerReady={onPlayerReady}
           onPlayerStateChange={handlePlayerStateChange}

@@ -5,7 +5,6 @@ export const useVisualization = () => {
   const [isActive, setIsActive] = useState(false);
   const [config, setConfig] = useState<VisualizationConfig>({
     type: 'waveform',
-    color: '#ef866b',
     smoothing: 0.85,
     fftSize: 2048,
   });
