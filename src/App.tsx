@@ -156,8 +156,8 @@ const App: React.FC = () => {
       <AppContainer>
         <LeftPanel
           isVisualizerActive={isVisualizerActive}
-          visualizationConfig={visualizationConfig}
           audioData={visualizationData || undefined}
+          sphereColor={visualizationConfig.color}
         />
         
         <RightPanel
@@ -170,6 +170,8 @@ const App: React.FC = () => {
           visualizationConfig={visualizationConfig}
           onConfigChange={updateVisualizationConfig}
           isLoading={isLoading}
+          playerStatus={playerStatus}
+          hasAudio={audioReady}
           onPlayerReady={onPlayerReady}
           onPlayerStateChange={handlePlayerStateChange}
           onPlayerError={handlePlayerError}

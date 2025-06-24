@@ -1,8 +1,9 @@
 import React from 'react';
 import { Box, styled } from '@mui/material';
 import ControlSection from './ControlSection';
+import AudioStatus from './AudioStatus';
 import YouTubePlayer, { YouTubePlayerRef } from './YouTubePlayer';
-import { VisualizationConfig } from '@/types/audio';
+import { VisualizationConfig, PlayerStatus } from '@/types/audio';
 import { YouTubePlayerInstance } from '@/types/youtube';
 
 interface RightPanelProps {
@@ -15,6 +16,8 @@ interface RightPanelProps {
   visualizationConfig: VisualizationConfig;
   onConfigChange: (config: Partial<VisualizationConfig>) => void;
   isLoading: boolean;
+  playerStatus: PlayerStatus;
+  hasAudio: boolean;
   onPlayerReady?: (player: YouTubePlayerInstance) => void;
   onPlayerStateChange?: (event: { data: number; target: YouTubePlayerInstance }) => void;
   onPlayerError?: (event: { data: number; target: YouTubePlayerInstance }) => void;
@@ -54,6 +57,8 @@ const RightPanel: React.FC<RightPanelProps> = ({
   visualizationConfig,
   onConfigChange,
   isLoading,
+  playerStatus,
+  hasAudio,
   onPlayerReady,
   onPlayerStateChange,
   onPlayerError,
@@ -72,8 +77,15 @@ const RightPanel: React.FC<RightPanelProps> = ({
         isLoading={isLoading}
       />
 
+      <AudioStatus
+        status={playerStatus}
+        isVisualizerActive={isVisualizerActive}
+        hasAudio={hasAudio}
+      />
+
+      {/* Hidden YouTube Player for audio only */}
       {videoId && (
-        <PlayerSection>
+        <Box sx={{ display: 'none' }}>
           <YouTubePlayer
             ref={playerRef}
             videoId={videoId}
@@ -81,7 +93,7 @@ const RightPanel: React.FC<RightPanelProps> = ({
             onStateChange={onPlayerStateChange}
             onError={onPlayerError}
           />
-        </PlayerSection>
+        </Box>
       )}
     </Panel>
   );

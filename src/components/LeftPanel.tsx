@@ -1,13 +1,13 @@
 import React from 'react';
 import { Box, Typography, styled } from '@mui/material';
+import { GraphicEq } from '@mui/icons-material';
 import BeatVisualization from './BeatVisualization';
-import WaveformCanvas from './WaveformCanvas';
-import { VisualizationConfig, VisualizationData } from '@/types/audio';
+import { VisualizationData } from '@/types/audio';
 
 interface LeftPanelProps {
   isVisualizerActive: boolean;
-  visualizationConfig: VisualizationConfig;
   audioData?: VisualizationData;
+  sphereColor?: string;
 }
 
 const Panel = styled(Box)(({ theme }) => ({
@@ -62,17 +62,40 @@ const BrandSubtitle = styled(Typography)(({ theme }) => ({
   fontSize: '1.75rem',
   fontWeight: 300,
   color: 'rgba(255, 255, 255, 0.8)',
-  marginBottom: 48,
+  marginBottom: 24,
   
   [theme.breakpoints.down('md')]: {
     fontSize: '1.125rem',
   },
 }));
 
+const AudioOnlyBadge = styled(Box)(({ theme }) => ({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 8,
+  padding: '8px 16px',
+  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+  borderRadius: 20,
+  backdropFilter: 'blur(10px)',
+  border: '1px solid rgba(255, 255, 255, 0.2)',
+  marginBottom: 24,
+  
+  '& .MuiSvgIcon-root': {
+    fontSize: 20,
+    color: 'rgba(255, 255, 255, 0.9)',
+  },
+}));
+
+const BadgeText = styled(Typography)({
+  fontSize: '0.875rem',
+  fontWeight: 500,
+  color: 'rgba(255, 255, 255, 0.9)',
+});
+
 const LeftPanel: React.FC<LeftPanelProps> = ({
   isVisualizerActive,
-  visualizationConfig,
   audioData,
+  sphereColor = '#ffffff',
 }) => {
   return (
     <Panel>
@@ -83,17 +106,17 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
         <BrandSubtitle variant="h4">
           Experience your music in a new way
         </BrandSubtitle>
+        
+        <AudioOnlyBadge>
+          <GraphicEq />
+          <BadgeText>Audio-Reactive Visualization</BadgeText>
+        </AudioOnlyBadge>
       </BrandSection>
       
       <BeatVisualization
         isActive={isVisualizerActive}
         audioData={audioData?.frequencyData}
-      />
-      
-      <WaveformCanvas
-        isActive={isVisualizerActive}
-        config={visualizationConfig}
-        audioData={audioData}
+        sphereColor={sphereColor}
       />
     </Panel>
   );

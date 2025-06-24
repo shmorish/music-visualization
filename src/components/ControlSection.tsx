@@ -4,10 +4,6 @@ import {
   Typography,
   TextField,
   Button,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Fab,
   Grid,
   styled,
@@ -173,23 +169,7 @@ const ControlSection: React.FC<ControlSectionProps> = ({
         </ControlGroup>
 
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <InputLabel>Visualization Type</InputLabel>
-              <Select
-                value={visualizationConfig.type}
-                label="Visualization Type"
-                onChange={(e) => onConfigChange({ 
-                  type: e.target.value as 'waveform' | 'frequency' 
-                })}
-              >
-                <MenuItem value="waveform">Waveform</MenuItem>
-                <MenuItem value="frequency">Frequency</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12}>
             <Box>
               <Typography 
                 variant="body2" 
@@ -201,7 +181,7 @@ const ControlSection: React.FC<ControlSectionProps> = ({
                   color: 'text.secondary'
                 }}
               >
-                Color
+                Sphere Color
               </Typography>
               <ColorInput
                 type="color"

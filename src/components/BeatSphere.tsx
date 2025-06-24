@@ -6,6 +6,7 @@ interface BeatSphereProps {
   sphere: BeatSphereType;
   isActive: boolean;
   intensity?: number;
+  baseColor?: string;
 }
 
 const StyledSphere = styled(Box)<{ 
@@ -15,14 +16,15 @@ const StyledSphere = styled(Box)<{
   delay: number; 
   isActive: boolean;
   intensity: number;
-}>(({ theme, size, x, y, delay, isActive, intensity }) => ({
+  basecolor: string;
+}>(({ theme, size, x, y, delay, isActive, intensity, basecolor }) => ({
   position: 'absolute',
   width: size,
   height: size,
   borderRadius: '50%',
   background: `radial-gradient(circle at 30% 30%, 
-    rgba(255, 255, 255, ${0.4 * intensity}), 
-    rgba(255, 255, 255, ${0.1 * intensity}))`,
+    ${basecolor}${Math.round(0.8 * intensity * 255).toString(16).padStart(2, '0')}, 
+    ${basecolor}${Math.round(0.2 * intensity * 255).toString(16).padStart(2, '0')})`,
   backdropFilter: 'blur(10px)',
   border: `1px solid rgba(255, 255, 255, ${0.2 * intensity})`,
   top: y,
@@ -62,7 +64,8 @@ const StyledSphere = styled(Box)<{
 const BeatSphere: React.FC<BeatSphereProps> = ({ 
   sphere, 
   isActive, 
-  intensity = 1 
+  intensity = 1,
+  baseColor = '#ffffff'
 }) => {
   return (
     <StyledSphere
@@ -72,6 +75,7 @@ const BeatSphere: React.FC<BeatSphereProps> = ({
       delay={sphere.animationDelay}
       isActive={isActive}
       intensity={Math.max(0.3, intensity)}
+      basecolor={baseColor}
     />
   );
 };

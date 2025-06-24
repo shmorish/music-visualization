@@ -17,6 +17,7 @@ export interface YouTubePlayerRef {
 }
 
 const PlayerContainer = styled(Box)(({ theme }) => ({
+  display: 'none', // Hide the video player completely
   borderRadius: 16,
   overflow: 'hidden',
   boxShadow: '0 4px 8px 3px rgba(0, 0, 0, 0.15), 0 1px 3px 0px rgba(0, 0, 0, 0.3)',
