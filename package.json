@@ -1,0 +1,28 @@
+{
+  "name": "music-visualization",
+  "version": "1.0.0",
+  "description": "YouTube音声波形ビジュアライザー - YouTubeから音声を取得して波形を表示するWebアプリケーション",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx http-server -c-1 -p 8080",
+    "start": "npx http-server -c-1 -p 8080",
+    "build": "echo 'Static site - no build process needed'",
+    "lint": "echo 'No linting configured yet'"
+  },
+  "keywords": [
+    "music",
+    "visualization",
+    "audio",
+    "waveform",
+    "youtube",
+    "web-audio-api"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

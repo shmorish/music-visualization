@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音楽波形ビジュアライザー</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎵 音楽波形ビジュアライザー</h1>
+            <p>YouTubeの動画から音声を取得して波形を表示します</p>
+        </header>
+
+        <main>
+            <section class="input-section">
+                <div class="url-input">
+                    <label for="youtube-url">YouTube URL:</label>
+                    <input type="url" id="youtube-url" placeholder="https://www.youtube.com/watch?v=..." />
+                    <button id="load-video">動画を読み込み</button>
+                </div>
+            </section>
+
+            <section class="player-section">
+                <div id="youtube-player"></div>
+            </section>
+
+            <section class="visualizer-section">
+                <div class="controls">
+                    <button id="toggle-visualizer">波形表示を開始</button>
+                    <div class="visualization-controls">
+                        <label>
+                            波形タイプ:
+                            <select id="waveform-type">
+                                <option value="waveform">波形</option>
+                                <option value="frequency">周波数</option>
+                            </select>
+                        </label>
+                        <label>
+                            色:
+                            <input type="color" id="color-picker" value="#00ff00">
+                        </label>
+                    </div>
+                </div>
+                <canvas id="visualizer-canvas" width="800" height="300"></canvas>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="src/audio-player.js"></script>
+    <script src="src/visualizer.js"></script>
+    <script src="src/ui.js"></script>
+</body>
+</html>
