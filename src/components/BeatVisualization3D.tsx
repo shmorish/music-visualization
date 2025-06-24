@@ -43,16 +43,24 @@ const BeatVisualization3D: React.FC<BeatVisualization3DProps> = ({
       return demoIntensity;
     }
 
-    // Calculate average intensity across all frequencies
-    let sum = 0;
-    for (let i = 0; i < audioData.length; i++) {
-      sum += audioData[i];
-    }
+    // Calculate intensity based on different frequency ranges for more dynamic effect
+    const lowFreq = audioData.slice(0, 32); // Bass range
+    const midFreq = audioData.slice(32, 128); // Mid range
+    const highFreq = audioData.slice(128, 256); // High range
+
+    const lowAvg = lowFreq.reduce((sum, val) => sum + val, 0) / lowFreq.length;
+    const midAvg = midFreq.reduce((sum, val) => sum + val, 0) / midFreq.length;
+    const highAvg = highFreq.reduce((sum, val) => sum + val, 0) / highFreq.length;
+
+    // Weight bass frequencies heavily for EXTREME dramatic effect
+    const weightedIntensity = (lowAvg * 4 + midAvg * 2.5 + highAvg * 1.5) / (8 * 255);
+    const finalIntensity = Math.min(weightedIntensity, 1);
     
-    const average = sum / audioData.length;
-    const intensity = Math.min(average / 255, 1);
-    console.log('Audio intensity:', intensity, 'from', audioData.length, 'samples');
-    return intensity;
+    console.log('Audio intensity:', finalIntensity, 'from', audioData.length, 'samples');
+    console.log('Frequency averages - Low:', lowAvg.toFixed(2), 'Mid:', midAvg.toFixed(2), 'High:', highAvg.toFixed(2));
+    
+    // EXTREME amplification for violent movement
+    return Math.max(0.6, finalIntensity * 5);
   };
 
   return (
@@ -94,10 +102,12 @@ const BeatVisualization3D: React.FC<BeatVisualization3DProps> = ({
             enablePan={true}
             enableZoom={true}
             enableRotate={true}
-            minDistance={5}
-            maxDistance={30}
+            minDistance={3}
+            maxDistance={50}
             autoRotate={isActive}
-            autoRotateSpeed={0.5}
+            autoRotateSpeed={2 + (getIntensity() * 8)} // CRAZY camera rotation speed
+            enableDamping={true}
+            dampingFactor={0.05}
           />
         </Suspense>
       </Canvas>

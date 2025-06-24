@@ -32,9 +32,9 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
     const geometry = geometryRef.current;
     const positions = geometry.attributes.position.array as Float32Array;
     
-    // Calculate deformation based on intensity
-    const deformationStrength = intensity * 0.5;
-    const waveFrequency = 2 + intensity * 3;
+    // Calculate EXTREME deformation based on intensity
+    const deformationStrength = intensity * 3.0; // MASSIVE increase for violent movement
+    const waveFrequency = 2 + intensity * 8; // Much higher frequency response
     const time = state.clock.elapsedTime;
     
     // Debug log
@@ -54,13 +54,18 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
       const normalizedY = originalY / length;
       const normalizedZ = originalZ / length;
       
-      // Create spikes and waves based on audio intensity
-      const noise = Math.sin(time * waveFrequency + originalX * 5) * 
-                   Math.cos(time * waveFrequency * 0.7 + originalY * 3) *
-                   Math.sin(time * waveFrequency * 0.5 + originalZ * 4);
+      // Create VIOLENT spikes and waves based on audio intensity
+      const noise1 = Math.sin(time * waveFrequency + originalX * 8) * 
+                    Math.cos(time * waveFrequency * 1.3 + originalY * 6) *
+                    Math.sin(time * waveFrequency * 0.8 + originalZ * 7);
       
-      const spikeAmount = deformationStrength * (1 + noise * 0.5);
-      const newLength = size * (1 + spikeAmount);
+      const noise2 = Math.sin(time * waveFrequency * 2.1 + originalX * 12) * 
+                    Math.cos(time * waveFrequency * 1.7 + originalY * 9);
+      
+      const combinedNoise = (noise1 + noise2 * 0.5) / 1.5;
+      
+      const spikeAmount = deformationStrength * (1 + combinedNoise * 1.5); // EXTREME noise influence
+      const newLength = size * (1 + spikeAmount * 1.2); // MASSIVE deformation
       
       positions[i] = normalizedX * newLength;
       positions[i + 1] = normalizedY * newLength;
@@ -70,13 +75,14 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
     geometry.attributes.position.needsUpdate = true;
     geometry.computeVertexNormals();
     
-    // Scale effect based on intensity
-    const scale = 1 + intensity * 0.3;
+    // EXTREME scale effect based on intensity
+    const scale = 0.5 + intensity * 1.5; // Wild scaling from 0.5x to 2x
     mesh.scale.setScalar(scale);
     
-    // Rotation effect
-    mesh.rotation.x += delta * intensity * 0.5;
-    mesh.rotation.y += delta * intensity * 0.3;
+    // VIOLENT rotation effect
+    mesh.rotation.x += delta * intensity * 3.0; // CRAZY fast rotation
+    mesh.rotation.y += delta * intensity * 2.5;
+    mesh.rotation.z += delta * intensity * 1.8; // Add Z-axis rotation for chaos
   });
 
   // Convert hex color to RGB values for material
@@ -91,10 +97,11 @@ const AudioReactiveSphere3D: React.FC<AudioReactiveSphere3DProps> = ({
       <meshPhongMaterial
         color={color}
         emissive={color}
-        emissiveIntensity={intensity * 0.3}
+        emissiveIntensity={intensity * 0.8} // INTENSE glow
         transparent
-        opacity={0.8 + intensity * 0.2}
-        shininess={100}
+        opacity={0.6 + intensity * 0.4} // More dramatic transparency changes
+        shininess={30 + intensity * 200} // Variable shininess for chaos
+        wireframe={intensity > 0.8} // Switch to wireframe on high intensity
       />
     </mesh>
   );
