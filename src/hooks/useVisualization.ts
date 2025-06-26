@@ -51,18 +51,12 @@ export const useVisualization = () => {
         const newData = getVisualizationDataRef.current();
         if (newData) {
           setCurrentData(newData);
-          // Debug: Log audio data every 60 frames (~1 second)
-          if (Math.random() < 0.016) {
-            console.log('useVisualization: Audio data updated', {
-              frequencyDataLength: newData.frequencyData.length,
-              avgVolume: Array.from(newData.frequencyData).reduce((a, b) => a + b, 0) / newData.frequencyData.length
-            });
-          }
+          // Audio data updated successfully
         } else {
-          console.warn('useVisualization: No audio data received');
+          // No audio data received
         }
       } else {
-        console.warn('useVisualization: No getVisualizationData function');
+        // No getVisualizationData function available
       }
 
       if (isActive) {

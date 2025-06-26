@@ -97,7 +97,6 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
   audioData,
   sphereColor = '#ffffff',
 }) => {
-  console.log('LeftPanel - isVisualizerActive:', isVisualizerActive, 'audioData:', audioData);
   
   return (
     <Panel>

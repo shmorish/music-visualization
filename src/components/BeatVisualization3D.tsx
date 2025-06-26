@@ -33,11 +33,9 @@ const BeatVisualization3D: React.FC<BeatVisualization3DProps> = ({
 
   // Calculate intensity for the sphere based on audio data
   const getIntensity = (): number => {
-    console.log('BeatVisualization3D - isActive:', isActive, 'audioData:', audioData?.length);
     
     if (!audioData || !isActive) {
       // Return very low intensity when no audio data
-      console.log('No audio data - returning low intensity');
       return 0.1;
     }
 
@@ -53,7 +51,6 @@ const BeatVisualization3D: React.FC<BeatVisualization3DProps> = ({
     // Check if audio is essentially silent
     const overallAvg = (lowAvg + midAvg + highAvg) / 3;
     if (overallAvg < 3) {
-      console.log('Silent audio detected - returning low intensity');
       return 0.05;
     }
     
@@ -61,8 +58,6 @@ const BeatVisualization3D: React.FC<BeatVisualization3DProps> = ({
     const weightedIntensity = (lowAvg * 3 + midAvg * 2 + highAvg * 1.5) / (6.5 * 255);
     const rawIntensity = Math.min(weightedIntensity, 1);
     
-    console.log('Audio intensity:', rawIntensity.toFixed(3), 'from', audioData.length, 'samples');
-    console.log('Frequency averages - Low:', lowAvg.toFixed(1), 'Mid:', midAvg.toFixed(1), 'High:', highAvg.toFixed(1));
     
     // Controlled amplification for manageable visual effect
     const amplified = Math.pow(rawIntensity, 0.7) * 2.5; // Reduced from 8x to 2.5x

@@ -137,14 +137,7 @@ const BeatVisualization: React.FC<BeatVisualizationProps> = ({
 
   const getIntensityForSphere = (sphereId: number): number => {
     if (!audioData || !isActive) {
-      // Debug: Log when no audio data
-      if (sphereId === 1 && Math.random() < 0.01) {
-        console.log('BeatVisualization: No audio data', { 
-          audioData: !!audioData, 
-          audioDataLength: audioData?.length || 0,
-          isActive 
-        });
-      }
+      // No audio data available
       return 0.1; // Return very low value when no audio data
     }
     
@@ -195,16 +188,7 @@ const BeatVisualization: React.FC<BeatVisualizationProps> = ({
     const rawIntensity = average / 80; // Reduced sensitivity (was /50)
     const intensity = Math.max(0.05, Math.min(2.0, Math.pow(rawIntensity, 0.8) * 1.8)); // Reduced max from 5.0 to 2.0
     
-    // Debug: Log intensity for first sphere occasionally
-    if (sphereId === 1 && Math.random() < 0.01) {
-      console.log('BeatVisualization: Sphere intensity', { 
-        sphereId, 
-        average, 
-        intensity, 
-        audioDataLength: audioData.length,
-        range: ranges[sphereId]
-      });
-    }
+    // Debug logging removed for production
     
     return intensity;
   };

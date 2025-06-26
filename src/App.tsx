@@ -165,23 +165,25 @@ const App: React.FC = () => {
   // Fixed sphere colors based on theme
   const sphereColor = isDarkMode ? '#ef866b' : '#28385E'; // Light blue for dark mode, dark blue for light mode
   
-  // Debug: Log visualization data periodically
+  // Debug: Log visualization data periodically (development only)
   React.useEffect(() => {
-    const interval = setInterval(() => {
-      console.log('App.tsx - Visualization Status:', {
-        isPlaying,
-        playerStatus,
-        audioReady,
-        audioSource,
-        connectionMethod,
-        hasVisualizationData: !!visualizationData,
-        visualizationDataType: visualizationData ? 'VisualizationData' : 'null',
-        audioError,
-        playerError
-      });
-    }, 3000);
-    
-    return () => clearInterval(interval);
+    if (import.meta.env.DEV) {
+      const interval = setInterval(() => {
+        console.warn('App.tsx - Visualization Status:', {
+          isPlaying,
+          playerStatus,
+          audioReady,
+          audioSource,
+          connectionMethod,
+          hasVisualizationData: !!visualizationData,
+          visualizationDataType: visualizationData ? 'VisualizationData' : 'null',
+          audioError,
+          playerError
+        });
+      }, 3000);
+      
+      return () => clearInterval(interval);
+    }
   }, [isPlaying, playerStatus, audioReady, audioSource, connectionMethod, visualizationData, audioError, playerError]);
 
   return (

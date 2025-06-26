@@ -17,7 +17,7 @@ export const useAudioContext = () => {
 
   const initializeAudioContext = useCallback(() => {
     try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const audioContext = new AudioContextClass();
       
       setAudioContextData(prev => ({
@@ -35,36 +35,6 @@ export const useAudioContext = () => {
     }
   }, []);
 
-  const tryMultipleAudioExtractionMethods = useCallback(async (
-    audioContext: AudioContext, 
-    player: YouTubePlayerInstance
-  ): Promise<boolean> => {
-    // Method 1: Try to access iframe video element directly
-    try {
-      const success = await tryDirectVideoAccess(audioContext);
-      if (success) return true;
-    } catch (err) {
-      console.log('Method 1 (Direct Video Access) failed:', err);
-    }
-
-    // Method 2: Try cross-frame video access
-    try {
-      const success = await tryCrossFrameAccess(audioContext);
-      if (success) return true;
-    } catch (err) {
-      console.log('Method 2 (Cross-frame Access) failed:', err);
-    }
-
-    // Method 3: Use YouTube Player API for pseudo-audio data
-    try {
-      const success = await setupPlayerAPIBasedVisualization(audioContext, player);
-      if (success) return true;
-    } catch (err) {
-      console.log('Method 3 (Player API Based) failed:', err);
-    }
-
-    return false;
-  }, []);
 
   const tryDirectVideoAccess = useCallback(async (audioContext: AudioContext): Promise<boolean> => {
     // Find YouTube iframe
@@ -225,7 +195,7 @@ export const useAudioContext = () => {
       setConnectionMethod('YouTube Player API');
       
       // Store cleanup function for later use
-      (audioContext as any)._youtubeCleanup = cleanup;
+      (audioContext as AudioContext & { _youtubeCleanup?: () => void })._youtubeCleanup = cleanup;
       
       return true;
     } catch (err) {
@@ -233,6 +203,36 @@ export const useAudioContext = () => {
     }
   }, []);
 
+  const tryMultipleAudioExtractionMethods = useCallback(async (
+    audioContext: AudioContext, 
+    player: YouTubePlayerInstance
+  ): Promise<boolean> => {
+    // Method 1: Try to access iframe video element directly
+    try {
+      const success = await tryDirectVideoAccess(audioContext);
+      if (success) return true;
+    } catch (err) {
+      // Method 1 failed, try next method
+    }
+
+    // Method 2: Try cross-frame video access
+    try {
+      const success = await tryCrossFrameAccess(audioContext);
+      if (success) return true;
+    } catch (err) {
+      // Method 2 failed, try next method
+    }
+
+    // Method 3: Use YouTube Player API for pseudo-audio data
+    try {
+      const success = await setupPlayerAPIBasedVisualization(audioContext, player);
+      if (success) return true;
+    } catch (err) {
+      // Method 3 failed, no more methods available
+    }
+
+    return false;
+  }, [tryDirectVideoAccess, tryCrossFrameAccess, setupPlayerAPIBasedVisualization]);
 
   const connectToYouTubePlayer = useCallback(async (player: YouTubePlayerInstance): Promise<boolean> => {
     const audioContext = audioContextData.audioContext || initializeAudioContext();
@@ -247,7 +247,6 @@ export const useAudioContext = () => {
       const success = await tryMultipleAudioExtractionMethods(audioContext, player);
       if (success) {
         setCurrentSource('video');
-        console.log('Successfully connected to YouTube audio');
         return true;
       }
       throw new Error('All video audio extraction methods failed');
@@ -273,29 +272,14 @@ export const useAudioContext = () => {
     analyserNode.getByteFrequencyData(frequencyData);
     analyserNode.getByteTimeDomainData(timeData);
     
-    // Debug: Check if we're getting actual audio data
-    const avgFreq = Array.from(frequencyData).reduce((a, b) => a + b, 0) / frequencyData.length;
-    const avgTime = Array.from(timeData).reduce((a, b) => a + b, 0) / timeData.length;
-    
-    // Log occasionally
-    if (Math.random() < 0.01) {
-      console.log('getVisualizationData:', {
-        bufferLength,
-        avgFrequency: avgFreq.toFixed(2),
-        avgTime: avgTime.toFixed(2),
-        connectionMethod,
-        currentSource,
-        maxFreq: Math.max(...frequencyData),
-        minFreq: Math.min(...frequencyData)
-      });
-    }
+    // Audio data processing completed
 
     return {
       frequencyData,
       timeData,
       bufferLength,
     };
-  }, [audioContextData.analyserNode, connectionMethod, currentSource]);
+  }, [audioContextData]);
 
   const cleanup = useCallback(() => {
     const { audioContext, sourceNode } = audioContextData;
@@ -329,7 +313,7 @@ export const useAudioContext = () => {
     return () => {
       cleanup();
     };
-  }, []);
+  }, [cleanup]);
 
   return {
     audioContextData,

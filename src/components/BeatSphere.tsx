@@ -69,15 +69,7 @@ const BeatSphere: React.FC<BeatSphereProps> = ({
 }) => {
   const finalIntensity = Math.max(0.3, intensity);
   
-  // Debug: Log intensity for first sphere occasionally
-  if (sphere.id === 1 && Math.random() < 0.01) {
-    console.log('BeatSphere: Rendering with intensity', { 
-      sphereId: sphere.id, 
-      isActive, 
-      rawIntensity: intensity, 
-      finalIntensity 
-    });
-  }
+  // Debug logging removed for production
   
   return (
     <StyledSphere
