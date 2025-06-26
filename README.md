@@ -25,7 +25,21 @@ YouTube音声波形ビジュアライザー - React TypeScriptで構築された
 > 📖 **無料デプロイオプション**: [無料デプロイメントガイド](./FREE_DEPLOYMENT_OPTIONS.md) で詳細な比較と手順を確認
 
 #### 🏆 おすすめ: Netlify
+
+**🚀 ワンクリックデプロイ:**
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/shmorish/music-visualization)
+
+**⚡ ドラッグ&ドロップデプロイ (1分):**
+```bash
+npm run build:prod
+# https://app.netlify.com/drop で dist フォルダをドラッグ&ドロップ
+```
+
+**🔄 自動デプロイ設定:**
+- プライベートリポジトリでも対応
+- 📖 [詳細セットアップガイド](./NETLIFY_SETUP.md)
+- NETLIFY_AUTH_TOKEN と NETLIFY_SITE_ID の取得方法
+- GitHub Secrets の設定手順
 
 #### ⚡ 高速: Vercel  
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/shmorish/music-visualization)
@@ -80,7 +94,13 @@ npm run test:lint        # Lint + 型チェック
 
 # CI/CD
 npm run ci               # CIパイプライン実行
+
+# デプロイ
 npm run deploy           # GitHub Pagesにデプロイ
+npm run deploy:netlify   # Netlifyにデプロイ
+npm run deploy:vercel    # Vercelにデプロイ
+npm run deploy:firebase  # Firebase Hostingにデプロイ
+npm run deploy:surge     # Surge.shにデプロイ
 ```
 
 ## 🏗️ 技術スタック

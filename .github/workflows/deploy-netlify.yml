@@ -22,15 +22,43 @@ jobs:
     - name: Install dependencies
       run: npm ci --legacy-peer-deps
 
+    - name: Run linting
+      run: npm run lint:check
+
     - name: Build application
       run: npm run build:prod
       env:
         NODE_ENV: production
 
+    - name: Check build output
+      run: |
+        echo "Build completed successfully"
+        ls -la dist/
+        echo "Build size:"
+        du -sh dist/
+
     - name: Deploy to Netlify
+      id: netlify-deploy
       uses: netlify/actions/cli@master
       with:
-        args: deploy --prod --dir=dist
+        args: deploy --prod --dir=dist --message "Deploy from GitHub Actions"
       env:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+    - name: Get deployment URL
+      run: |
+        echo "🚀 Deployment successful!"
+        echo "📍 Site URL: https://${{ secrets.NETLIFY_SITE_ID }}.netlify.app"
+        echo "🔗 Or check your Netlify dashboard for the live URL"
+        
+    - name: Comment deployment URL
+      if: github.event_name == 'push'
+      run: |
+        echo "### 🚀 Netlify Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ **Build**: Completed successfully" >> $GITHUB_STEP_SUMMARY
+        echo "✅ **Deploy**: Live on Netlify" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "🔗 **Live Site**: Check your Netlify dashboard for the URL" >> $GITHUB_STEP_SUMMARY
+        echo "📊 **Build Details**: See logs above for build size and details" >> $GITHUB_STEP_SUMMARY
