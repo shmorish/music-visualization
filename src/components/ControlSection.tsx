@@ -30,7 +30,7 @@ const SectionHeader = styled(Box)({
   marginBottom: 24,
 });
 
-const SectionIcon = styled(Box)(({ theme }) => ({
+const SectionIcon = styled('div')(({ theme }) => ({
   color: theme.palette.primary.main,
   display: 'flex',
   alignItems: 'center',
@@ -76,9 +76,9 @@ const ControlSection: React.FC<ControlSectionProps> = ({
   };
 
   return (
-    <Box>
+    <Box component="div">
       {/* YouTube Link Section */}
-      <Box mb={4}>
+      <Box component="div" mb={4}>
         <SectionHeader>
           <SectionIcon>
             <LinkIcon />
