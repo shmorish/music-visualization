@@ -14,9 +14,11 @@ YouTube音声波形ビジュアライザー - React TypeScriptで構築された
 ## 🚀 デプロイ
 
 ### GitHub Pages
-[![Deploy to GitHub Pages](https://github.com/shmorish/music-visualization/actions/workflows/deploy.yml/badge.svg)](https://github.com/shmorish/music-visualization/actions/workflows/deploy.yml)
+[![Deploy to GitHub Pages](https://github.com/shmorish/music-visualization/actions/workflows/deploy-simple.yml/badge.svg)](https://github.com/shmorish/music-visualization/actions/workflows/deploy-simple.yml)
 
 **Live Demo:** https://shmorish.github.io/music-visualization/
+
+> 📖 **初回セットアップ**: [GitHub Pages セットアップガイド](./GITHUB_PAGES_SETUP.md) を参照してください
 
 ### その他のプラットフォーム
 
