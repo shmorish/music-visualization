@@ -1,0 +1,56 @@
+name: Deploy to Firebase Hosting
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci --legacy-peer-deps
+
+    - name: Run linting
+      run: npm run lint:check
+
+    - name: Build application
+      run: npm run build:prod
+      env:
+        NODE_ENV: production
+
+    - name: Check build output
+      run: |
+        echo "Build completed successfully"
+        ls -la dist/
+        echo "Build size:"
+        du -sh dist/
+
+    - name: Deploy to Firebase
+      uses: FirebaseExtended/action-firebase-deploy@v0
+      with:
+        repoToken: '${{ secrets.GITHUB_TOKEN }}'
+        firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+        projectId: '${{ secrets.FIREBASE_PROJECT_ID }}'
+        
+    - name: Deployment success notification
+      run: |
+        echo "### 🔥 Firebase Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ **Build**: Completed successfully" >> $GITHUB_STEP_SUMMARY
+        echo "✅ **Deploy**: Live on Firebase Hosting" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "🔗 **Live Site**: https://${{ secrets.FIREBASE_PROJECT_ID }}.web.app" >> $GITHUB_STEP_SUMMARY
+        echo "🔗 **Alternative**: https://${{ secrets.FIREBASE_PROJECT_ID }}.firebaseapp.com" >> $GITHUB_STEP_SUMMARY
+        echo "📊 **Build Details**: See logs above for build size" >> $GITHUB_STEP_SUMMARY

@@ -44,10 +44,33 @@ npm run build:prod
 #### ⚡ 高速: Vercel  
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/shmorish/music-visualization)
 
-#### 🔥 Google: Firebase Hosting
+#### 🔥 Google: Firebase Hosting (完全無料)
+
+**🚀 手動デプロイ (最も簡単):**
 ```bash
+npm run build:prod
+# Firebase Console で dist フォルダをアップロード
+```
+
+**⚡ CLI デプロイ:**
+```bash
+npm install -g firebase-tools
+firebase login
+firebase init hosting
 npm run deploy:firebase
 ```
+
+**🔄 自動デプロイ設定:**
+- GitHub Actions ワークフロー対応
+- 📖 [詳細セットアップガイド](./FIREBASE_SETUP.md)
+- Firebase Service Account の設定方法
+- 無料プランの詳細情報
+
+**💰 無料プランの魅力:**
+- ストレージ: 10GB
+- 転送量: 月10GB  
+- SSL証明書: 自動
+- CDN: Google の世界規模ネットワーク
 
 #### 📦 シンプル: Surge.sh
 ```bash
