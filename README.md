@@ -22,11 +22,23 @@ YouTube音声波形ビジュアライザー - React TypeScriptで構築された
 
 ### その他のプラットフォーム
 
-#### Netlify
+> 📖 **無料デプロイオプション**: [無料デプロイメントガイド](./FREE_DEPLOYMENT_OPTIONS.md) で詳細な比較と手順を確認
+
+#### 🏆 おすすめ: Netlify
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/shmorish/music-visualization)
 
-#### Vercel
+#### ⚡ 高速: Vercel  
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/shmorish/music-visualization)
+
+#### 🔥 Google: Firebase Hosting
+```bash
+npm run deploy:firebase
+```
+
+#### 📦 シンプル: Surge.sh
+```bash
+npm run deploy:surge
+```
 
 ## 🛠️ 開発
 
