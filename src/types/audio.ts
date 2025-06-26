@@ -11,6 +11,7 @@ export interface VisualizationConfig {
   type: 'waveform' | 'frequency';
   smoothing: number;
   fftSize: number;
+  color: string;
 }
 
 export interface YouTubePlayerInstance {

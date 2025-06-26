@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Box, styled } from '@mui/material';
 import { YouTubePlayerInstance, YouTubePlayerConfig } from '@/types/youtube';
 import { loadYouTubeAPI } from '@/utils/youtube';
@@ -80,13 +80,13 @@ const YouTubePlayer = forwardRef<YouTubePlayerRef, YouTubePlayerProps>(({
               }
             },
             onStateChange: (event) => {
-              if (isMounted) {
-                onStateChange?.(event);
+              if (isMounted && event.data !== undefined) {
+                onStateChange?.({ data: event.data, target: event.target });
               }
             },
             onError: (event) => {
               if (isMounted) {
-                onError?.(event);
+                onError?.({ data: event.data, target: event.target });
               }
             },
           },

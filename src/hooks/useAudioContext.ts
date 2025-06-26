@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { AudioContextData, VisualizationData } from '@/types/audio';
 import { YouTubePlayerInstance } from '@/types/youtube';
 
@@ -154,7 +154,7 @@ export const useAudioContext = () => {
       gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
       
       // Create oscillators for different frequency ranges with better variation
-      const oscillators: Array<{ osc: OscillatorNode; gain: GainNode; baseFreq: number }> = [];
+      const oscillators: Array<{ osc: OscillatorNode; gain: GainNode }> = [];
       const frequencies = [60, 120, 240, 480, 960, 1920, 3840]; // Bass to treble
       
       for (const freq of frequencies) {
@@ -169,7 +169,7 @@ export const useAudioContext = () => {
         oscGain.connect(analyserNode);
         osc.start();
         
-        oscillators.push({ osc, gain: oscGain, baseFreq: freq });
+        oscillators.push({ osc, gain: oscGain });
       }
       
       // Set up more dynamic updates based on YouTube player state
@@ -181,7 +181,7 @@ export const useAudioContext = () => {
           
           if (state === 1) { // Playing
             // Create more dynamic pseudo-audio data
-            oscillators.forEach(({ gain, baseFreq }, index) => {
+            oscillators.forEach(({ gain }, index) => {
               // More complex wave patterns for better visualization
               const timeVar = currentTime * (0.5 + index * 0.3);
               const intensity1 = Math.sin(timeVar) * Math.cos(timeVar * 1.3);

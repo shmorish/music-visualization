@@ -7,6 +7,7 @@ export const useVisualization = () => {
     type: 'waveform',
     smoothing: 0.85,
     fftSize: 2048,
+    color: '#1976d2',
   });
   const [currentData, setCurrentData] = useState<VisualizationData | null>(null);
 

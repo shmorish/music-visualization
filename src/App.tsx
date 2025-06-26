@@ -51,11 +51,12 @@ const App: React.FC = () => {
     handlePlayerError,
     playVideo,
     pauseVideo,
-    getPlayerInstance,
+    getCurrentTime,
+    getDuration,
+    seekTo,
   } = useYouTubePlayer();
 
   const {
-    audioContextData,
     isReady: audioReady,
     error: audioError,
     currentSource: audioSource,
@@ -208,6 +209,9 @@ const App: React.FC = () => {
           onPlayerStateChange={handlePlayerStateChange}
           onPlayerError={handlePlayerError}
           playerRef={playerRef}
+          getCurrentTime={getCurrentTime}
+          getDuration={getDuration}
+          seekTo={seekTo}
         />
       </AppContainer>
 

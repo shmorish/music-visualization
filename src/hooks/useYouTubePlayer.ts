@@ -130,6 +130,17 @@ export const useYouTubePlayer = () => {
     }
   }, []);
 
+  const seekTo = useCallback((seconds: number) => {
+    if (playerInstanceRef.current) {
+      try {
+        playerInstanceRef.current.seekTo(seconds, true);
+      } catch (err) {
+        console.error('Error seeking to time:', err);
+        setError('Failed to seek to time');
+      }
+    }
+  }, []);
+
   const getPlayerInstance = useCallback((): YouTubePlayerInstance | null => {
     return playerInstanceRef.current;
   }, []);
@@ -154,6 +165,7 @@ export const useYouTubePlayer = () => {
     getCurrentTime,
     getDuration,
     setVolume,
+    seekTo,
     getPlayerInstance,
     reset,
   };

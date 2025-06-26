@@ -23,12 +23,12 @@ interface ControlSectionProps {
   isLoading: boolean;
 }
 
-const SectionHeader = styled(Box)(({ theme }) => ({
+const SectionHeader = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   gap: 12,
   marginBottom: 24,
-}));
+});
 
 const SectionIcon = styled(Box)(({ theme }) => ({
   color: theme.palette.primary.main,

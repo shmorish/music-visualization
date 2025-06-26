@@ -39,6 +39,8 @@ export interface YouTubePlayerInstance {
   mute: () => void;
   unMute: () => void;
   isMuted: () => boolean;
+  seekTo: (seconds: number, allowSeekAhead?: boolean) => void;
+  destroy?: () => void;
 }
 
 export enum YouTubePlayerState {

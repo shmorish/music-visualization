@@ -3,6 +3,8 @@ import { Box, styled } from '@mui/material';
 import ControlSection from './ControlSection';
 import AudioStatus from './AudioStatus';
 import YouTubePlayer, { YouTubePlayerRef } from './YouTubePlayer';
+import AudioProgressBar from './AudioProgressBar';
+import YouTubePlaylist from './YouTubePlaylist';
 import { PlayerStatus } from '@/types/audio';
 import { YouTubePlayerInstance } from '@/types/youtube';
 
@@ -21,6 +23,9 @@ interface RightPanelProps {
   onPlayerStateChange?: (event: { data: number; target: YouTubePlayerInstance }) => void;
   onPlayerError?: (event: { data: number; target: YouTubePlayerInstance }) => void;
   playerRef?: React.RefObject<YouTubePlayerRef>;
+  getCurrentTime: () => number;
+  getDuration: () => number;
+  seekTo: (time: number) => void;
 }
 
 const Panel = styled(Box)(({ theme }) => ({
@@ -61,6 +66,9 @@ const RightPanel: React.FC<RightPanelProps> = ({
   onPlayerStateChange,
   onPlayerError,
   playerRef,
+  getCurrentTime,
+  getDuration,
+  seekTo,
 }) => {
   return (
     <Panel>
@@ -78,6 +86,22 @@ const RightPanel: React.FC<RightPanelProps> = ({
         isVisualizerActive={isPlaying}
         hasAudio={hasAudio}
         connectionMethod={connectionMethod}
+      />
+
+      {/* Audio Progress Bar */}
+      {videoId && playerStatus !== 'idle' && (
+        <AudioProgressBar
+          getCurrentTime={getCurrentTime}
+          getDuration={getDuration}
+          isPlaying={playerStatus === 'playing'}
+          onSeek={seekTo}
+        />
+      )}
+
+      {/* YouTube Playlist */}
+      <YouTubePlaylist
+        onSelectVideo={onUrlChange}
+        currentVideoId={videoId}
       />
 
       {/* YouTube Player for audio playback */}
